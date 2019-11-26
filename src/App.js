@@ -1,8 +1,16 @@
-import React, {Component} from "react"
+import React from "react"
+
+import MyMenu from "./Components/MyMenu"
+import RightBar from "./Components/RightBar"
+import Foot from "./Components/Foot"
 
 function App() {
     return (
-        <h1>Hello World</h1>
+        <div>
+            <MyMenu />
+            <RightBar />
+            <Foot />
+        </div>   
     )
 }
 export default App

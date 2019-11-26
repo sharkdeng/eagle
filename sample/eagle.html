@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class=" js flexbox canvas canvastext webgl no-touch geolocation postmessage no-websqldatabase indexeddb hashchange history draganddrop websockets rgba hsla multiplebgs backgroundsize borderimage borderradius boxshadow textshadow opacity cssanimations csscolumns cssgradients no-cssreflections csstransforms csstransforms3d csstransitions fontface generatedcontent video audio localstorage sessionstorage webworkers no-applicationcache svg inlinesvg smil svgclippaths" style=""><!--<![endif]--><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+     <meta name="viewport" content="width=device-width">
+    <title>超级鹰验证码识别-专业的验证码云端识别服务,让验证码识别更快速、更准确、更强大</title>
+    <meta name="keywords" content="超级鹰|超级鹰验证码识别|验证码识别|识别验证码|超级鹰验证码识别平台">
+    <meta name="description" content="超级鹰验证码识别,是识别验证码里的超级鹰，可为您提供专业的验证码云端识别服务,让验证码识别更快速、更准确、更强大。可为所有软件提供验证码识别自动化解决方案,帮助客户进行验证码识别、远程答题、人工打码,为用户实现价值。">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <link rel="stylesheet" href="eagle_files/normalize.css">
+    <link rel="stylesheet" href="eagle_files/main.css">
+    <link rel="stylesheet" href="eagle_files/font-awesome.css">
+    <link rel="stylesheet" href="eagle_files/bootstrap.css">
+    <link rel="stylesheet" href="eagle_files/common.css">
+    <link rel="stylesheet" href="eagle_files/public.css">
+    <link rel="stylesheet" href="eagle_files/index.css">
+    <script src="eagle_files/modernizr-2.js"></script>
+<style>div.pxADHolder{position:relative;bottom:auto;left:auto;top:auto;right:auto;overflow:hidden;display:block;float:none;padding:0;padding:0;overflow:hidden;width:auto;height:auto}div.pxADHolder*{overflow:hidden}</style><script src="eagle_files/prompt.js"></script></head>
+
+<body>
+    <!--[if lt IE 7]>
+        <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
+        <![endif]-->
+    <!-- Add your site or application content here -->
+    <!--头部-->
+    <header class="public-header clearfix">
+    <section class="header-top">
+        <section class="container clearfix">
+            <p class="info pull-left">欢迎光临 超级鹰，专业验证码识别平台</p>
+            <p class="phone pull-right">QQ:800198998&nbsp;&nbsp;<a href="tencent://message/?uin=800198998&amp;Site=chaojiying.com&amp;Menu=yes"><img src="eagle_files/zx_qq.gif" alt="点击发送消息给对方"></a></p>
+            <p id="login-register" class="login pull-right"><a class="login">登录/注册</a></p>
+        </section>
+    </section>
+
+
+
+    <section class="container login-con">
+        <section class="login-content">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#userone" aria-controls="userone" role="tab" data-toggle="tab">用户中心</a></li>
+                <li role="presentation"><a href="#authorone" aria-controls="authorone" role="tab" data-toggle="tab">软件开发商</a></li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="userone">
+                    <section>
+                                            <form name="fm2" class="form-horizontal common-login-form" method="post" action="/user/login/">
+                            <div class="form-group common-login-group">
+                                <label for="user" class="col-xs-2 control-label common-login-label"><i class="fa fa-2x fa-user common-login-i"></i>
+                                </label>
+                                <div class="col-xs-8 common-login-col-xs-10">
+                                    <input type="text" class="form-control common-login-input" name="user" id="user" placeholder="请输用户账号">
+                                </div>
+                            </div>
+                            <div class="form-group common-login-group">
+                                <label for="pass" class="col-xs-2 control-label common-login-label"><i class="fa fa-2x fa-key common-login-i"></i></label>
+                                <div class="col-xs-8 common-login-col-xs-10">
+                                    <input type="password" class="form-control common-login-input" name="pass" id="pass" placeholder="请输入密码">
+                                </div>
+                            </div>
+                             <div class="form-group common-login-group-other">
+                                <div class="col-xs-12 auth">
+                                    <img src="eagle_files/code_002.png" onclick="this.src='/include/code/code.php?u=1&amp;t='+Math.random()">
+                                </div>
+                            </div>
+                            <div class="form-group common-login-group">
+                                <label for="pass" class="col-xs-2 control-label common-login-label"><i class="fa fa-2x fa-lock common-login-i"></i></label>
+                                <div class="col-xs-8 common-login-col-xs-10">
+                                    <input type="text" class="form-control common-login-input" name="imgtxt" id="auth" placeholder="请输入验证码">
+                                </div>
+                            </div>
+                            <div class="form-group common-login-groupother ">
+                                <div class="col-xs-7 common-login-help text-left">
+                                    <a class="common-login-sign" href="http://www.chaojiying.com/user/reg/">注册用户</a>
+                                    <span>&nbsp;|&nbsp;</span>
+                                    <a class="common-login-forget" href="http://www.chaojiying.com/user/getpass/">忘记密码?</a>
+                                </div>
+                            </div>
+                            <div class="form-group common-login-groupother ">
+                            <div style=" float:left;width:505px;"><span align="center"></span></div>
+                                <button type="submit" class="btn btn-primary btn-lg btn-block common-login-btn ">登录
+                                </button>
+                                <input name="act" type="hidden" value="1">
+                            </div>
+                        </form>
+                                         </section>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="authorone">
+                	                    <form name="fm2" class="form-horizontal common-login-form" method="POST" action="/apiuser/login/">
+                        <div class="form-group common-login-group">
+                            <label for="user1" class="col-xs-2 control-label common-login-label"><i class="fa fa-2x fa-user common-login-i"></i>
+                            </label>
+                            <div class="col-xs-8 common-login-col-xs-10">
+                                <input type="text" class="form-control common-login-input" name="user" id="user1" placeholder="请输开发商账号">
+                            </div>
+                        </div>
+                        <div class="form-group common-login-group">
+                            <label for="pass1" class="col-xs-2 control-label common-login-label"><i class="fa fa-2x fa-key common-login-i"></i></label>
+                            <div class="col-xs-8 common-login-col-xs-10">
+                                <input type="password" class="form-control common-login-input" name="pass" id="pass1" placeholder="请输入密码">
+                            </div>
+                        </div>
+                        <div class="form-group common-login-group-other">
+                            <div class="col-xs-12 auth">
+                                <img src="eagle_files/code.png" onclick="this.src='/include/code/code.php?u=1&amp;t='+Math.random()">
+                            </div>
+                        </div>
+                        <div class="form-group common-login-group">
+                            <label for="pass" class="col-xs-2 control-label common-login-label"><i class="fa fa-2x fa-lock common-login-i"></i></label>
+                            <div class="col-xs-8 common-login-col-xs-10">
+                                <input type="text" class="form-control common-login-input" name="imgtxt" id="auth" placeholder="请输入验证码">
+                            </div>
+                        </div>
+                        <div class="form-group common-login-groupother ">
+                            <div class="col-xs-7 common-login-help text-left">
+                                <a class="common-login-sign" href="http://www.chaojiying.com/apiuser/reg/">注册开发商</a>
+                                <span>&nbsp;|&nbsp;</span>
+                                <a class="common-login-forget" href="http://www.chaojiying.com/apiuser/getpass/">忘记密码?</a>
+                            </div>
+                        </div>
+                        <div class="form-group common-login-groupother ">
+                            <button type="submit" class="btn btn-primary btn-lg btn-block common-login-btn ">登录
+                            </button>
+                            <input name="act" type="hidden" value="1">
+                        </div>
+                    </form>
+                                    </div>
+            </div>
+        </section>
+    </section>
+
+    
+    <section class="clearfix"></section>
+    <section class="header-nav container clearfix">
+        <a href="http://www.chaojiying.com/" title="超级鹰">
+            <img class="logo" src="eagle_files/logo.gif" alt="">
+        </a>
+        <nav class="header-menu clearfix">
+            <ul class="clearfix">
+                <li><a href="http://www.chaojiying.com/cases.html">应用案例</a></li>
+                <li><a href="http://www.chaojiying.com/api.html">开发文档</a></li>
+                <li><a href="http://www.chaojiying.com/price.html">价格体系</a></li>
+                <li><a href="http://www.chaojiying.com/demo.html">免费测试</a></li>
+                <li><a href="http://www.chaojiying.com/about.html">关于我们</a></li>
+                <li><a href="http://www.chaojiying.com/contact.html">联系我们</a></li>
+            </ul>
+        </nav>
+    </section>
+</header>
+    <!--头部结束-->
+    <section class="index-banner">
+        <div id="carousel-example-generic" class="carousel slide  container" data-ride="carousel">
+            <!-- Indicators -->
+            <ol class="carousel-indicators">
+                <li data-target="#carousel-example-generic" data-slide-to="0" class=""></li>
+                <li data-target="#carousel-example-generic" data-slide-to="1" class="active"></li>
+                <!-- <li data-target="#carousel-example-generic" data-slide-to="2"></li> -->
+            </ol>
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner" role="listbox">
+                <div class="item">
+                    <img class="index-banner-img" src="eagle_files/index-banner1.gif" alt="...">
+                    <article>
+                        <h3>
+                        超级鹰图片分类及识别录入系统
+                        </h3>
+                        <p>
+                            全球领先的智能图片分类及识别商家
+                            <br> 安全、准确、高效、稳定、开放
+                            <br> 强大的技术及校验团队，支持大并发。
+                            <br> 7*24h作业进度管理
+                            <br>
+                        </p>
+                        <a href="http://www.chaojiying.com/user/reg/" class="btn btn-info btn-lg"><i class="fa fa-user-plus fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;用户注册</a>
+                        <a href="http://www.chaojiying.com/user/login/" class="btn btn-warning btn-lg"><i class="fa fa-user fa-lg" aria-hidden="true"></i>&nbsp;&nbsp;用户登录</a>
+                    </article>
+                </div>
+                <div class="item active">
+                    <img class="index-banner-img" src="eagle_files/index-banner2.gif" alt="...">
+                    <article>
+                        <h3>
+                        超级鹰图片分类及识别录入系统
+                        </h3>
+                        <p>
+                            独立的数据及统计服务，实时与总部数据中心直连。
+                            <br> 整合云录入客户端，提供更高的安全性及工作效率。
+                            <br> 采用世界先进的图片处理算法以及神经网络训练系统来提供识别率。
+                            <br>
+                        </p>
+                    </article>
+                </div>
+                <!--  <div class="item">
+                    <img class="index-banner-img" src="/public/default/images-new/index-banner.gif" alt="...">
+                </div> -->
+            </div>
+        </div>
+    </section>
+    <section class="index-choice">
+        <section class="index-title container">
+            <ul class="index-choice-list cl clearfix">
+                <li>
+                    <a class="reason_img  reason_img_1"></a>
+                    <div class="ad_right">
+                        <h4 class="text-center">极速+稳定</h4> 图片识别平均1~3秒；数千人工校正团队，7*24h作业 国内数台32核顶级服务器同时工作，高稳定性
+                    </div>
+                </li>
+                <li class="col-middle">
+                    <a class="reason_img  reason_img_2"></a>
+                    <div class="ad_right">
+                        <h4 class="text-center">优质性价比</h4> 价格低廉，扣费精准，0误差统计,按时按天的汇总信息，有一说一,诚信透明
+                    </div>
+                </li>
+                <li>
+                    <a class="reason_img  reason_img_3"></a>
+                    <div class="ad_right">
+                        <h4 class="text-center">安全的体系结构</h4> 完善的智能监控系统，保证数据真实正常，确保客户利益,A+级安全级别，涉及客户数据均采用计算机最高安全级别设计，全面保障客户隐私不外泄！
+                    </div>
+                </li>
+            </ul>
+            <ul class="index-choice-list cl clearfix">
+                <li class="">
+                    <a class="reason_img  reason_img_4"></a>
+                    <div class="ad_right">
+                        <h4 class="text-center">开发商接入简单</h4> 开放的API接口，让你轻松快捷的集成图片识别API，各种编程语言广泛支持：易语言，C#，VB.net，PHP，JAVA，Ddlphi，按键精灵……
+                    </div>
+                </li>
+                <li class="col-middle">
+                    <a class="reason_img  reason_img_5"></a>
+                    <div class="ad_right">
+                        <h4 class="text-center">优秀卓越的开发商受益模式</h4> 25%-40%的阶梯分成比例，改变开发商的工作方式
+                    </div>
+                </li>
+                <li>
+                    <a class="reason_img  reason_img_6"></a>
+                    <div class="ad_right">
+                        <h4 class="text-center">完美智能监控</h4> 完美多线程支持，提高开发商软件的效率；智能监控系统，保证开发商利益
+                    </div>
+                </li>
+            </ul>
+        </section>
+    </section>
+    <section class="index-promise">
+        <section class="index-title container">
+            <h1 class="text-center promise-title">
+            我们承诺
+            </h1>
+            <hr>
+            <span>&nbsp;</span>
+        </section>
+        <section class="container">
+            <div class="picScroll-left">
+                <div class="bd">
+                    <div class="tempWrap" style="overflow:hidden; position:relative; width:1120px"><ul class="picList" style="width: 2240px; left: -1120px; position: relative; overflow: hidden; padding: 0px; margin: 0px;">
+                        <li style="float: left; width: 264px;">
+                            <div class="pic">
+                                <a href="" target="_blank"><img src="eagle_files/index-promise1.gif"></a>
+                            </div>
+                            <div class="title"><a href="" target="_blank">24小时随时领取题分<br>免费测试
+                            </a></div>
+                        </li>
+                        <li style="float: left; width: 264px;">
+                            <div class="pic">
+                                <a href="" target="_blank"><img src="eagle_files/index-promise2.gif"></a>
+                            </div>
+                            <div class="title"><a href="" target="_blank">计费实时统计<br>误差双倍返还
+                            </a></div>
+                        </li>
+                        <li style="float: left; width: 264px;">
+                            <div class="pic">
+                                <a href="" target="_blank"><img src="eagle_files/index-promise3.gif"></a>
+                            </div>
+                            <div class="title"><a href="" target="_blank">7*24h无间隙识别<br>&nbsp;</a></div>
+                        </li>
+                        <li style="float: left; width: 264px;">
+                            <div class="pic">
+                                <a href="" target="_blank"><img src="eagle_files/index-promise4.gif"></a>
+                            </div>
+                            <div class="title"><a href="" target="_blank">故障1分钟响应<br>&nbsp; </a></div>
+                        </li>
+                        <li style="float: left; width: 264px;">
+                            <div class="pic">
+                                <a href="" target="_blank"><img src="eagle_files/index-promise1.gif"></a>
+                            </div>
+                            <div class="title"><a href="" target="_blank">24小时随时领取题分<br>免费测试
+                            </a></div>
+                        </li>
+                        <li style="float: left; width: 264px;">
+                            <div class="pic">
+                                <a href="" target="_blank"><img src="eagle_files/index-promise2.gif"></a>
+                            </div>
+                            <div class="title"><a href="" target="_blank">计费实时统计<br>误差双倍返还
+                            </a></div>
+                        </li>
+                        <li style="float: left; width: 264px;">
+                            <div class="pic">
+                                <a href="" target="_blank"><img src="eagle_files/index-promise3.gif"></a>
+                            </div>
+                            <div class="title"><a href="" target="_blank">7*24h无间隙识别<br>&nbsp;</a></div>
+                        </li>
+                        <li style="float: left; width: 264px;">
+                            <div class="pic">
+                                <a href="" target="_blank"><img src="eagle_files/index-promise4.gif"></a>
+                            </div>
+                            <div class="title"><a href="" target="_blank">故障1分钟响应<br>&nbsp; </a></div>
+                        </li>
+                    </ul></div>
+                </div>
+                <div class="hd">
+                    <a class="next"><i class="fa fa-chevron-right fa-2x" aria-hidden="true"></i></a>
+                    <!-- <ul></ul> -->
+                    <a class="prev"><i class="fa fa-chevron-left fa-2x" aria-hidden="true"></i></a>
+                    <!-- <span class="pageState"></span> -->
+                </div>
+            </div>
+        </section>
+        <section class="index-contact container" style="width:1105px !important;height:60px;">
+            <section class="container">
+                <p style="line-height:60px;">
+                    <span>客户服务电话：0317-431-6618&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    <span>客服QQ：800198998</span>
+                </p>
+            </section>
+        </section>
+    </section>
+    <section class="index-safety">
+        <section class="index-title container">
+            <h1 class="text-center title">
+            多重安全防护措施
+            </h1>
+            <hr>
+            <span>&nbsp;</span>
+        </section>
+        <div class="safety-content text-center container">
+            <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 text-center safe-item">
+                <img src="eagle_files/index-safety1.png" alt="">
+                <h3>
+                可限制省份IP
+                </h3>
+                <h4>
+                帐号只能在某个或多个省份使用
+                </h4>
+            </div>
+            <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 text-center safe-item">
+                <img src="eagle_files/index-safety2.png" alt="">
+                <h3>
+                可限制软件
+                </h3>
+                <h4>
+                可限制该账号仅使用某个软件
+                </h4>
+            </div>
+            <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 text-center safe-item">
+                <img src="eagle_files/index-safety3.png" alt="">
+                <h3>
+                可限制日题分上限
+                </h3>
+                <h4>
+                可限制日题分上限，如果当天超出该上限就不能继续使用；
+                </h4>
+            </div>
+            <div class="col-xs-6 col-sm-6 col-md-3 col-lg-3 text-center safe-item">
+                <img src="eagle_files/index-safety4.png" alt="">
+                <h3>
+                可锁定题分
+                </h3>
+                <h4>
+                长期不使用，只要邮箱不被盗，绑定微信，锁定题分，确保万无一失
+                </h4>
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 safe-last">
+                <img class="icon" src="eagle_files/index-safety5.gif" alt="">
+            </div>
+            <div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 text-left safe-last1">
+                <h3>
+                实时安全提醒
+                </h3>
+                <h4>
+                使用新软件，系统会给你注册时候填写的手机号码发送短信提示，如果被盗号马上可以发现并处理。
+                </h4>
+            </div>
+        </div>
+    </section>
+<section class="index-service">
+        <section class="container">
+            <section class="row">
+                <section class="col-xs-4">
+                    <article class="service-item">
+                        <h4 class="title">
+                    <img class="img1" src="eagle_files/index-service.png" alt="">
+                    服务范围
+                    </h4>
+                        <p class="star"><img src="eagle_files/index-service-star.gif" alt=""></p>
+                        <p class="content">
+                            业务模式全面覆盖。 可灵活定制作业流程。 支持多种主流操作系统。 自动画像切割与数据撮合。 服务团队具有多年从业经验。
+                        </p>
+                    </article>
+                </section>
+                <section class="col-xs-4">
+                    <article class="service-item">
+                        <h4 class="title">
+                    <img src="eagle_files/index-service-advantage.png" alt="">
+                    超级鹰优势
+                    </h4>
+                        <p class="star"><img src="eagle_files/index-service-star.gif" alt=""></p>
+                        <p class="content">
+                            支持PNG、JPG及多页TIFF画像。 一、二录、比较、检查自由组合。 功能强大的数据字典辅助录入。 模板支持录入时和检查前验证。 导出脚本引擎支持多种交付格式。
+                        </p>
+                    </article>
+                </section>
+                <section class="col-xs-4">
+                    <article class="service-item">
+                        <h4 class="title">
+                    <img src="eagle_files/index-service-us.png" alt="">
+                    关于超级鹰
+                    </h4>
+                        <p class="star"><img src="eagle_files/index-service-star.gif" alt=""></p>
+                        <p class="content">
+                            多年的图片识别、图片分类服务经验,领先的开放平台设计，专业的技术团队。难以逾越的用户体验和业界口碑 ... 这些只是表面的光彩。 您选择超级鹰图片识别的真正原因只有一个：给客户最好的图片识别体验。
+                        </p>
+                    </article>
+                </section>
+            </section>
+        </section>
+    </section>
+    <section class="index-guide">
+        <section class="container">
+            <section class="col-xs-3">
+                <section class="article">
+                    <h1 class="title">
+                    新手指南
+                    </h1>
+                    <p class="icon">
+                        <img src="eagle_files/index-guide1.png" alt="">
+                    </p>
+                    <ul class="guide-link">
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>什么是图片分类，图片验证码识别</a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>为什么要选择超级鹰
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>价格体系
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>注册用户
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>注册开发商
+                        </a></li>
+                    </ul>
+                </section>
+            </section>
+            <section class="col-xs-3">
+                <section class="article">
+                    <h1 class="title">
+                    示例下载
+                    </h1>
+                    <p class="icon">
+                        <img src="eagle_files/index-guide2.png" alt="">
+                    </p>
+                    <ul class="guide-link">
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>接口DLL文件下载
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>API文档下载
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>演示程序及说明
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>成品测试程序
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>万能验证码识别助手免费下载
+                        </a></li>
+                    </ul>
+                </section>
+            </section>
+            <section class="col-xs-3">
+                <section class="article">
+                    <h1 class="title">
+                    用户服务
+                    </h1>
+                    <p class="icon">
+                        <img src="eagle_files/index-guide3.png" alt="">
+                    </p>
+                    <ul class="guide-link">
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>错误代码列表&nbsp;(自助排错)
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>用户使用流程
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>验证码价格表
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>题分充值
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>用户中心
+                        </a></li>
+                    </ul>
+                </section>
+            </section>
+            <section class="col-xs-3">
+                <section class="article">
+                    <h1 class="title">
+                    开发商服务
+                    </h1>
+                    <p class="icon">
+                        <img src="eagle_files/index-guide4.png" alt="">
+                    </p>
+                    <ul class="guide-link">
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>开发者接入向导
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>API接口维基
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>开发者许可协议
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>开发者利润分成
+                        </a></li>
+                        <li><a href=""><i class="fa fa-square" aria-hidden="true"></i>开发者后台
+                        </a></li>
+                    </ul>
+                </section>
+            </section>
+        </section>
+    </section>
+    <!--底部-->
+        <section class="index-contact">
+        <section class="container">
+            <p>
+                <span>马上开始图片识别&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <a class="user" href="http://www.chaojiying.com/user/reg/">成为用户</a>
+                <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;或者&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                <a href="http://www.chaojiying.com/api.html" class="server">查看开发文档</a>
+            </p>
+        </section>
+    </section>
+<section class="public-footer">
+    <section class="footer-top container">
+        <ul>
+            <li class="col-xs-3">
+                <img src="eagle_files/footer-top1.gif" alt="">&nbsp;&nbsp;专业验证码识别平台
+            </li>
+            <li class="col-xs-3">
+                <img src="eagle_files/footer-top2.gif" alt="">&nbsp;&nbsp;细致周到的安全机制
+            </li>
+            <li class="col-xs-3">
+                <img src="eagle_files/footer-top3.gif" alt="">&nbsp;&nbsp;接口开放源代码
+            </li>
+            <li class="col-xs-3">
+                <img src="eagle_files/footer-top4.gif" alt="">&nbsp;&nbsp;7x24小时服务
+            </li>
+        </ul>
+    </section>
+    <section class="footer-content container">
+        <section class="col-xs-6 footer-link">
+            <section class="col-xs-3">
+                <h4 class="title">关于我们</h4>
+                <ul>
+                    <li><a href="">公司介绍</a></li>
+                    <li><a href="">企业文化</a></li>
+                    <li><a href="">公司资质</a></li>
+                    <li><a href="">联系我们</a></li>
+                </ul>
+            </section>
+            <section class="col-xs-3">
+                <h4 class="title">产品与服务</h4>
+                <ul>
+                    <li><a href="">近期优惠</a></li>
+                    <li><a href="">产品促销</a></li>
+                    <li><a href="">积分活动</a></li>
+                    <li><a href="">热门抢购</a></li>
+                </ul>
+            </section>
+            <section class="col-xs-3">
+                <h4 class="title">常见问题</h4>
+                <ul>
+                    <li><a href="">绑定微信</a></li>
+                    <li><a href="">错误代码列表</a></li>
+                    <li><a href="">图片错误</a></li>
+                    <li><a href="">支付/发票</a></li>
+                </ul>
+            </section>
+            <section class="col-xs-3">
+                <h4 class="title">快速通道</h4>
+                <ul>
+                    <li><a href="">领取题分
+                        </a></li>
+                    <li><a href="">马上充值
+                        </a></li>
+                    <li><a href="">查询余额
+                        </a></li>
+                    <li><a href="">查看价格
+                        </a></li>
+                </ul>
+            </section>
+        </section>
+        <section class="col-xs-6 footer-contact clearfix">
+            <div class="contact-hot">
+                <h1 class="hotline">客服热线</h1>
+                <span class="en">Customer hotline</span>
+            </div>
+            <p class="contact-tel pull-left">
+                0317-431-6618
+            </p>
+            <section class="footer-us clearfix">
+                <p class="clearfix">
+                    <img class="wechat-code pull-left" src="eagle_files/footer-code.gif" alt="">
+                    <span class="code pull-left">
+                            <br>
+                            <img src="eagle_files/footer-wechat.gif" alt=""><br>
+                            关注我们
+                            <br>
+                            最新动态
+                        </span>
+                </p>
+            </section>
+        </section>
+    </section>
+    <section class="footer-bottom">
+        <section class="container">
+            <p>
+                <span class="pull-left">
+                        Copyright © 2012 chaojiying.com All rights reserved.  冀ICP备16003820号-2<script language="javascript" type="text/javascript" src="eagle_files/16851773.html"></script>
+                    </span>
+                <span class="pull-right">
+                        <a href="" class="line">
+                            公司声明
+                        </a>
+                        <a href="" class="line">
+                            服务协议
+                        </a>
+                        <a href="http://www.chaojiying.com/zhushou.html">
+                            万能识别助手
+                        </a>
+                    </span>
+            </p>
+        </section>
+    </section>
+</section>
+<section>
+    <!--底部结束-->
+    <section>
+                   <div id="rightMenu" class="right-menu-bar" style="right: 0px;">
+            <div class="right-menu-container" id="J_rightBarMenuContainer">
+                <!-- <a href="/bagshow/" class="right-menu shopping-car" target="_blank" data-login="1">
+            <span class="txt">购物车</span>
+            <span class="count">99</span>
+        </a> -->
+                <a href="http://www.chaojiying.com/user/" class="right-menu user" rel="nofollow">会员</a>
+
+
+                <section class="rightbar-phone">
+                    <h3 class="text-center"><i class="fa fa-phone-square Example of volume-control-phone" aria-hidden="true"></i>&nbsp;&nbsp;24小时客服热线</h3>
+                    <p>0317-431-6618</p>
+                </section>
+                <a href="javascript:void(0);" id="rightbar-phone" class="right-menu phone" rel="nofollow">电话</a>
+                <a href="http://www.chaojiying.com/user/pay/" class="right-menu charge" rel="nofollow">充值</a>
+            </div>
+            <a href="javascript:void(0)" class="right-menu back-top" id="J_backTop">Top</a>
+            <a href="javascript:void(0)" class="right-menu collapse-right-bar" id="J_closeRightBar"></a>
+            <a href="javascript:void(0)" class="right-menu expand-right-bar" id="J_expandRightBar"></a>
+
+        </div>    </section>
+    <script src="eagle_files/jquery.js"></script>
+    <script src="eagle_files/bootstrap.js"></script>
+    <script src="eagle_files/jquery_002.js"></script>
+    <script id="jsID">
+    var ary = location.href.split("&");
+    jQuery(".picScroll-left").slide({
+        titCell: ".hd ul",
+        mainCell: ".bd ul",
+        autoPage: true,
+        effect: "left",
+        autoPlay: true,
+        scroll: 4,
+        vis: 4
+
+    });
+    </script>
+    <script>
+    $(function() {
+          $('#login-register').hover(function() {
+                $('#login-register').addClass('hover');
+                $('.login-con ').show();
+            }, function() {
+                $('.login-con').hover(function() {
+                    $('.login-con ').show();
+                }, function() {
+                    $('.login-con ').hide();
+                    $('#login-register').removeClass('hover');
+                })
+            });
+        $(window).scroll(function() {
+            if ($(window).scrollTop() > 100) {
+                $(".right-menu").addClass('back-top-visible');
+            } else {
+                $(".right-menu").removeClass('back-top-visible');
+            }
+        });
+
+    });
+    $("#J_backTop").click(function() {
+        $('body,html').animate({
+            scrollTop: 0
+        }, 100);
+        return false;
+    });
+    $("#J_closeRightBar").click(function() {
+        $('.right-menu-bar').animate({
+            right: -40
+        }, 200);
+        $('.expand-right-bar').animate({
+            right: 40
+        }, 200);
+    });
+    $("#J_expandRightBar").click(function() {
+        $('.right-menu-bar').animate({
+            right: 0
+        }, 200);
+        $('.expand-right-bar').animate({
+            right: -40
+        }, 200);
+    });
+    $('#rightbar-phone').hover(function() {
+        $('#rightMenu .rightbar-phone').show();
+    }, function() {
+        $('#rightMenu .rightbar-phone').hide();
+    });
+    $('#rightbar-qq').hover(function() {
+        $('.kefu').show();
+    }, function() {
+        $('.kefu').hide();
+    });
+    </script>
+
+
+
+</section><img src="eagle_files/y.jpeg" style="display: none;"><div class="pxADHolder" style="height: 100px; width: 640px; display: block; position: absolute; overflow: hidden; top: -200px; left: 0px; z-index: 2147483647;"><div><div><div><script type="text/javascript" src="eagle_files/pxhacGluZHVvZHVv_2.js"></script></div><div><iframe src="eagle_files/tongji.html" style="width: 100%; height: 225px; border: 0px none; margin: 0px; padding: 0px;" scrolling="no"></iframe></div></div></div></div><div class="pxADHolder" style="height: 100px; width: 640px; display: block; position: absolute; overflow: hidden; top: -200px; left: 0px; z-index: 2147483647;"><div><div><div><script type="text/javascript" src="eagle_files/pxhaamRtb2JpbGU_4.js"></script></div></div></div></div><div class="pxADHolder" style="height: 100px; width: 640px; display: block; position: absolute; overflow: hidden; top: -200px; left: 0px; z-index: 2147483647;"><div><div><div></div></div></div></div><iframe src="eagle_files/a.html" style="display: none;"></iframe><iframe src="eagle_files/cnzz_imp_11544.html" style="display: none;"></iframe><script type="text/javascript" src="eagle_files/a_002.html"></script></body></html>

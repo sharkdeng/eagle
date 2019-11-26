@@ -1,0 +1,1723 @@
+
+
+;
+$(function(){
+    /*统计代码*/
+    (function() {
+        var _version_ = "20170215";
+        var CreateBinder = function(o) {
+                return function(method, func) {
+                    o[method] = function() {
+                        return func.apply(o, arguments);
+                    };
+                    return func;
+                };
+            },
+            IsArray = function(o) {
+                return Object.prototype["toString"].call(Object(o)) == "[object Array]";
+            },
+            IsEmpty = function(o) {
+                return ((undefined == o) || ("-" == o) || ("" == o));
+            },
+            Encode = function(uri, isAll) {
+                var _encode = encodeURIComponent;
+                if (_encode instanceof Function) {
+                    return isAll ? encodeURI(uri) : encodeURIComponent(uri);
+                } else {
+                    return escape(uri);
+                }
+            };
+        var Tracker = function(name) {
+            var oThis = this,
+                bind = CreateBinder(oThis),
+                config = new Config();
+            oThis.name = name;
+            oThis.ahAjax = new AHAjax();
+            oThis.getSign = function() {
+                if (IsEmpty(window.pageLoadId)) {
+                    return "noloadid";
+                }
+                return [window.pageLoadId.substring(2, 10) >> 3, Math.random().toString().substring(2, 5)].join("");
+            };
+            oThis.getNessInfo = function() {
+                return "ahpvers=" + _version_ + "&ahpplid=" + window.pageLoadId + "&ahpprlid=" + window.rPageLoadId + "&ahpsign=" + oThis.getSign();
+            };
+            oThis.getPageInfo = function() {
+                var scene_type = oThis.ahUtil.parseUri(window.location)['queryKey']["scene_type"] || "0";
+                var show_id = oThis.ahUtil.parseUri(window.location)['queryKey']["show_id"] || "0";
+                return "&ref=" + Encode(document.referrer) + "&cur=" + Encode(document.URL) + "&scene_type=" + scene_type + "&show_id=" + show_id;
+            };
+            oThis.getRefAndCur = function() {
+                return "&ref=" + Encode(document.referrer) + "&cur=" + Encode(document.URL);
+            };
+            oThis.getSiteInfo = function() {
+                if (!IsEmpty(window.pvTrack)) {
+                    var t = window.pvTrack;
+                    return (t.site != null ? "&site=" + t.site : "") +
+                        (t.category != null ? "&category=" + t.category : "") +
+                        (t.subcategory != null ? "&subcategory=" + t.subcategory : "") +
+                        (t.object != null ? "&object=" + t.object : (t.objectid != null ? "&object=" + t.objectid : ""));
+                }
+                return "";
+            };
+            oThis.trackerEvent = bind("_trackEvent", function() {
+                var _arguments = arguments;
+                var _category = arguments[0];
+                var _params = arguments[1];
+                var eventPath = _category + "?" + oThis.getNessInfo() + oThis.getSiteInfo();
+                if (!IsEmpty(_params)) {
+                    for (var _key in _params) {
+                        eventPath += "&" + _key + "=" + _params[_key];
+                    }
+                }
+                eventPath += oThis.getRefAndCur();
+                oThis.ahAjax.sendByImage(config.alPath + eventPath);
+            });
+        };
+        var AHAjax = function() {
+            var oThis = this;
+            oThis.sendByImage = function(src) {
+                var image = new Image(1, 1);
+                image.onload = image.onerror = function() {
+                    image.onload = image.onerror = null;
+                    image = null;
+                };
+                image.src = src;
+            };
+        };
+        var Config = function() {
+            var oThis = this;
+            oThis.alPath = "//al.autohome.com.cn/";
+        };
+        var AsyncTrackerFactory = function() {
+            var oThis = this,
+                bind = CreateBinder(oThis);
+            oThis.defaultTracker = new Tracker("default");
+            oThis.push = function(commandArray) {
+                for (var _arguments = arguments, err = 0, i = 0; i < _arguments.length; i++) {
+                    try {
+                        if (typeof _arguments[i] === "function") {
+                            _arguments[i]();
+                        } else {
+                            var o = _arguments[i][0],
+                                func = o;
+                            var oTracker = oThis.defaultTracker;
+                            oTracker[func].apply(oTracker, _arguments[i].slice(1));
+                        };
+                    } catch (ex) {
+                        err++;
+                    }
+                }
+                return err;
+            };
+        };
+        var _AsyncTrackerFactory = new AsyncTrackerFactory;
+        _tracker_: {
+            var ahas = window._simple_ahas,
+                isArray = false;
+            if (ahas && typeof ahas["push"] == "function") {
+                isArray = IsArray(ahas);
+                if (!isArray) {
+                    break _tracker_;
+                }
+            }
+            window._simple_ahas = _AsyncTrackerFactory;
+            isArray && _AsyncTrackerFactory["push"].apply(_AsyncTrackerFactory, ahas);
+        }
+    })();
+    /*判断元素是否被展示*/
+    function isEleShow(ele){
+        if( $(ele).length>0 && $(ele).height()>0 ){
+            return true
+        };
+        return false
+    };
+    /*平台判断*/
+    function _isPlatform(){
+        var ua = navigator.userAgent.toLowerCase();
+        if (/iphone|ipad|ipod/.test(ua) && !/miuibrowser/.test(ua)) {
+            return 'ios';
+        } else if (/android/.test(ua) || /miuibrowser/.test(ua)) {
+            return 'android';
+        }
+    };
+    //loadJs
+    function loadJS(url, callback) {
+        var head = document.getElementsByTagName("head")[0];
+        var script = document.createElement("script");
+        script.src = url;
+        var done = false;
+        script.onload = script.onreadystatechange = function() {
+            if (!done && (!this.readyState || this.readyState == "loaded" || this.readyState == "complete")) {
+                done = true;
+                callback();
+                script.onload = script.onreadystatechange = null;
+                head.removeChild(script);
+            }
+        };
+        head.appendChild(script);
+    };
+    /*BaiDuSearch*/
+    function _isFromBaiDuSearch(){
+
+        /*临时添加20181228*/
+        var u = navigator.userAgent.toLowerCase();
+        if(u.indexOf('huawei')>-1){
+            return true;
+        };
+        
+        var  _referrer = document.referrer.toLowerCase();
+        if( _referrer.indexOf('baidu')>-1){
+            $.setCookie('isFromBaiDuSearch','1', { domain: 'autohome.com.cn', expireHours: 12 });
+            return true;
+        }else if( !(_referrer.indexOf('autohome') > -1 || _referrer.indexOf('che168') > -1) ){
+            $.setCookie('isFromBaiDuSearch','', { domain: 'autohome.com.cn', expireHours: 0 });
+            return false;
+        }else{
+            if( $.getCookie('isFromBaiDuSearch', '') || _referrer.indexOf('www.autohome.com.cn')>-1 ){
+                return true;
+            };
+            return false;
+        };
+    };
+    /*qqSearch*/
+    function _isFromQQSearch(){
+        var  _referrer = document.referrer.toLowerCase();
+        if( _referrer.indexOf('quan.qq.com')>-1){
+            $.setCookie('isFromQQSearch','1', { domain: 'autohome.com.cn', expireHours: 12 });
+            return true;
+        }else if( !(_referrer.indexOf('autohome') > -1 || _referrer.indexOf('che168') > -1) ){
+            $.setCookie('isFromQQSearch','', { domain: 'autohome.com.cn', expireHours: 0 });
+            return false;
+        }else{
+            if( $.getCookie('isFromQQSearch', '') || _referrer.indexOf('www.autohome.com.cn')>-1 ){
+                return true;
+            };
+            return false;
+        };
+    };
+    /*xiaomi*/
+    /** 下载App函数Start **/
+    function _AutoHomeOpen(opt){
+        var  isPlatform = {
+            UA : navigator.userAgent,
+            isAndroid : function(){
+                return this.UA.indexOf('Android') > -1 || this.UA.indexOf('Adr') > -1;
+            },
+            isXiaoMi : function(){
+                return  this.UA.toLowerCase().indexOf('miuibrowser') > -1
+            },
+            isIos : function(){
+                return {
+                    ios:!!this.UA.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),
+                    version:(function(){
+                        if(!!navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/)){
+                            if(navigator.appVersion){
+                                return parseInt((navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/)[1],10) || 0;
+                            }else{
+                                return 0;
+                            }
+                        }else{
+                            return 0;
+                        }
+                    })()
+                };
+            },
+            isCanUseYYB : function(){
+                return this.UA.toLowerCase().indexOf('micromessenger') > -1;
+            }
+        };
+        var config = {
+            scheme_Ios: 'autohome://',
+            scheme_Adr: 'autohome://',
+            scheme_YYB_Ios : 'http://comm.app.autohome.com.cn/go/',
+            scheme_YYB_Adr: '',
+            download_url_ios: '',
+            download_url_andorid: '',
+            download_url_YYB_ios: '',
+            download_url_YYB_andorid:'',
+            timeout:1500
+        };
+        for(var key in opt){
+            config[key] = opt[key];
+        };
+        function getIos9Scheme(s){
+            if(isPlatform.isCanUseYYB()){
+                return config.scheme_YYB_Ios + config.scheme_Ios.substr(s.length)+'&downsrc='+encodeURIComponent(config.download_url_YYB_ios);
+            }else{
+                return config.scheme_YYB_Ios + config.scheme_Ios.substr(s.length) +'&downsrc='+encodeURIComponent(config.download_url_ios);
+            };
+        };
+        var platform_type = 0;
+        if(isPlatform.isCanUseYYB()){
+            if(isPlatform.isXiaoMi()){
+                platform_type = 4;
+            }else if(isPlatform.isIos().ios&&isPlatform.isIos().version>=9){
+                /*ios9+ 应用宝*/
+                platform_type = 1;
+            }else if((isPlatform.isIos().ios && isPlatform.isIos().version<9)||isPlatform.isAndroid()){
+                /*ios9-或android 应用宝*/
+                platform_type = 2;
+            }else{
+                return;
+            };
+        }else{
+            if(isPlatform.isXiaoMi()){
+                platform_type = 4;
+            }else if(isPlatform.isIos().ios&&isPlatform.isIos().version>=9){
+                /*ios9+ 浏览器*/
+                platform_type = 1;
+            }else if((isPlatform.isIos().ios && isPlatform.isIos().version<9)||isPlatform.isAndroid()){
+                /*ios9-或android 浏览器*/
+                platform_type = 3;
+            }else{
+                return;
+            }
+        };
+        function godown(type){
+            if( type == 4){
+                return function(){
+                    window.location.href = config.download_url_andorid;
+                };
+            };
+            if(type==1){
+                return function(){
+                    window.location.href = getIos9Scheme('autohome://');
+                };
+            }else if(type==2){
+                var _url;
+                if(isPlatform.isIos().ios){
+                    _url = config.download_url_YYB_ios;
+                }else{
+                    _url = config.download_url_YYB_andorid;
+                };
+                return function(){
+                    window.location.href = _url;
+                };
+            }else{
+                var schemeUrl,downUrl;
+                if(isPlatform.isIos().ios){
+                    schemeUrl = config.scheme_Ios;
+                    downUrl = config.download_url_ios;
+                }else{
+                    schemeUrl = config.scheme_Adr;
+                    downUrl = config.download_url_andorid;
+                };
+                function openApp(openUrl, callback) {
+                    var intHandle = null, clearIntHandle = function () {
+                        clearInterval(intHandle);
+                    };
+                    function checkOpen(cb) {
+                        var timeout = 1500,
+                        cycleCount = 20,
+                        timeoutCount = timeout / cycleCount,
+                        threshold = timeout + timeoutCount;
+                        var andrVersionArr = navigator.userAgent.match(/Android (\d+)\.(\d+)\.?(\d+)?/),_version='';
+                        if(andrVersionArr){
+                            andrVersionArr.shift();
+                            if(andrVersionArr[2] === undefined ){
+                                andrVersionArr[2] = 0;
+                            };
+                            _version = andrVersionArr.join('');
+                        }else{
+                            _version = '900';
+                        }
+                        if(_version >= '700'){
+                            threshold -= 30
+                        }else{
+                            threshold += 650
+                        };
+                        var _clickTime = +(new Date());
+                        function check(elsTime) {
+                            if (elsTime > threshold || document.hidden || document.webkitHidden){
+                                cb(true);
+                            } else {
+                                cb(false);
+                            }
+                        };
+                        var _count = 0,
+                        elsTime = 0;
+                        intHandle = setInterval(function () {
+                            _count++;
+                            elsTime = +(new Date()) - _clickTime;
+                            if (_count >= timeoutCount || elsTime > threshold){
+                                clearIntHandle();
+                                check(elsTime);
+                            };
+                        }, cycleCount);
+                    };
+                    var aLink = null,body=null;
+                    aLink = document.createElement("iframe"),
+                    body = document.body;
+                    aLink.style.cssText = "display:none;width:0px;height:0px;";
+                    aLink.src = openUrl;
+                    body.appendChild(aLink);
+                    
+                    if (callback) {
+                        checkOpen(function (opened) {
+                            callback && callback(opened);
+                        });
+                    };
+                    var visibilitychange = function () {
+                        var tag = document.hidden || document.webkitHidden;
+                        tag && clearIntHandle();;
+                    };
+                    document.addEventListener('visibilitychange', visibilitychange, false);
+                    document.addEventListener('webkitvisibilitychange', visibilitychange, false);
+                    window.addEventListener('pagehide', function () {
+                        clearIntHandle();
+                    }, false);
+                    window.addEventListener('blur', function () {
+                        clearIntHandle();
+                    }, false);
+                };
+                return function(){
+                    openApp(schemeUrl, function (opend) {
+                        if (!opend){
+                            window.location.href = downUrl;
+                        };
+                    });
+                    /*window.location.href = downUrl;*/
+                };
+            }
+        };
+        return godown(platform_type);
+    };
+    /* 轮播 */
+    var MySlide = function(el,opt){
+        this.$element = el,
+        this.$eparnet = el.parent();
+        //默认设置
+        this.defaults = {
+            /*子标签*/
+            childTag:'div',
+            /*从几个开始显示，从1开始*/
+            startIndex:1,
+            /*滑动域宽度*/
+            viewWidth:window.innerWidth,
+            /*动画时间（单位毫秒ms）;*/
+            dur:800,
+            /*是否显示进度*/
+            prog:false,
+            /*是否循环*/
+            loop:true,
+            /*是否自动播放(自动播放时循环必须为ture)*/
+            autoplay:{play:false,time:1000},
+            /*进度条(是否显示/显示区域)*/
+            process:{show:false,processBox:null},
+            /*当前进度*/
+            curIndex:0
+        };
+        this.options = $.extend({},this.defaults,opt);
+        this.run();
+    };
+    MySlide.prototype = {
+        init:function(){
+            var _this = this;
+            /*当前cur*/
+            this.curIndex = 0;
+            /*窗口改变*/
+            if(_this.options.viewWidth == window.innerWidth){
+                var t;
+                $(window).on('resize',function(){
+                    clearTimeout(t);
+                    t = setTimeout(function(){_this.options.viewWidth = window.innerWidth;},100)
+                })
+            };
+            if(this.options.loop){
+                var frist = this.$element.children(this.options.childTag+':first-child');
+                var last = this.$element.children(this.options.childTag+':last-child');
+                var clonefirst = frist.clone(),cloneLast = last.clone();
+                /*分别添加首尾节点*/
+                this.$element.append(clonefirst);
+                this.$element.prepend(cloneLast);
+                this.curIndex = this.options.startIndex - 1;
+            }else{
+                this.options.startIndex --;
+                this.curIndex = this.options.startIndex;
+            };
+            var posiX = this.options.viewWidth*this.options.startIndex;
+            this.startPosiX(posiX);
+            this.oX = {
+                startX:0,
+                endX:0,
+                disX:0
+            };
+            this.cantouch = true;
+            this.len = this.$element.children(this.options.childTag).length;
+            if(this.options.process.show){
+                this.createProcess();
+                this.processCur(this.curIndex)
+            };
+        },
+        startPosiX:function(posiX){
+            this.$element.css({
+                "transform":"translate3d("+(-posiX)+"px, 0px, 0px)",
+                "-webkit-transform":"translate3d("+(-posiX)+"px, 0px, 0px)",
+                "transition-duration":"0ms",
+                "-webkit-transition-duration":"0ms"
+            });
+        },
+        startFn:function(e){
+            var _this = this;
+            window.clearInterval(_this.mytimer);
+            window.clearTimeout(_this._t);
+            if(this.cantouch){
+                var touchs = e.changedTouches[0] || touches[0];
+                this.oX.startX = touchs.pageX;
+                e.stopPropagation();
+                $(this.$element).on('touchmove.mymove',function(e){
+                    _this.moveFn(e);
+                    e.stopPropagation();
+                });
+            };
+        },
+        moveFn:function(e){
+            if(this.cantouch){
+                var _this = this;
+                var touchs = e.changedTouches[0] || touches[0];
+                this.oX.endX = touchs.pageX;
+                this.oX.disX = this.oX.endX - this.oX.startX;
+                if(this.options.loop){
+                    if(this.options.startIndex == 0){
+                        this.options.startIndex = this.len - 2;
+                    }else if(this.options.startIndex == this.len -1 ){
+                        this.options.startIndex = 1;
+                    };
+                }
+                this.animateFn(-this.options.startIndex*this.options.viewWidth+this.oX.disX,0);
+            }
+            e.stopPropagation();
+            e.preventDefault();
+        },
+        endFn:function(e){
+            if(this.cantouch){
+                var goX = -this.options.startIndex*this.options.viewWidth;
+                if(Math.abs(this.oX.disX)>=parseInt(this.options.viewWidth/8)){
+                    if(this.options.loop){
+                        if(this.oX.disX>0){
+                            this.options.startIndex--;
+                            if(this.options.startIndex <= 0){
+                                this.curIndex = this.len - 3;
+                            }else{
+                                this.curIndex = this.options.startIndex - 1;
+                            };
+                        }else{
+                            this.options.startIndex++;
+                            if(this.options.startIndex<=this.len - 2){
+                                this.curIndex = this.options.startIndex - 1;
+                            }else{
+                                this.curIndex = 0;
+                            }
+                        }
+                        if(this.options.process.show){
+                            this.processCur(this.curIndex);
+                        }
+                    }else{
+                        if((this.options.startIndex == 0 && this.oX.disX > 0) || (this.options.startIndex == this.len-1 && this.oX.disX < 0)){
+                            /*到头了*/
+                        }else{
+                            if(this.oX.disX>0){
+                                this.options.startIndex--;
+                            }else{
+                                this.options.startIndex++;
+                            }
+                            this.curIndex = this.options.startIndex;
+                        }
+                        if(_this.options.process.show){
+                            _this.processCur(_this.curIndex);
+                        }
+                    }
+                    this.oX.disX = 0;
+                }
+                goX = -this.options.startIndex*this.options.viewWidth;
+                this.animateFn(goX,this.options.dur);
+                var _this = this;
+                if(this.options.loop == true && this.options.autoplay.play == true){
+                    this._t = setTimeout(function(){
+                        _this.mytimer = _this.timer();
+                    },_this.options.autoplay.time+_this.options.dur)
+                }
+            };
+            $(this.$element).off('touchmove.mymove');
+        },
+        animateFn:function(value,time){
+            this.$element.css({
+                "transform":"translate3d("+value+"px, 0px, 0px)",
+                "-webkit-transform":"translate3d("+value+"px, 0px, 0px)",
+                "transition-duration":time+'ms',
+                "-webkit-transition-duration":time+'ms'
+            })
+        },
+        timer:function(){
+            var _this = this;
+            var goX = 0;
+            return window.setInterval(function(){
+                /*运动期间禁止用户滑动*/
+                _this.cantouch = false;
+                setTimeout(function(){
+                    _this.cantouch = true;
+                },_this.options.dur+100);
+                _this.options.startIndex++;
+                if(_this.options.startIndex == _this.len -1 ){
+                    _this.options.startIndex = 1;
+                    _this.animateFn(0,0);
+                };
+                if(_this.options.startIndex == _this.len){
+                    _this.animateFn(-_this.options.viewWidth,0);
+                    _this.options.startIndex = 2;
+                };
+                _this.curIndex = _this.options.startIndex - 1;
+                goX = -_this.options.startIndex*_this.options.viewWidth;
+                setTimeout(function(){
+                    _this.animateFn(goX,_this.options.dur);
+                    if(_this.options.process.show){
+                        _this.processCur(_this.curIndex);
+                    }
+                },100);
+            },_this.options.autoplay.time);
+        },
+        createProcess:function(){
+            var eleNum = this.options.loop?this.len-2:this.len;
+            var str = "";
+            for(var i=0;i<eleNum;i++){
+                str+="<span></span>"
+            }
+            $(this.options.process.processBox).append(str);
+        },
+        processCur:function(idx){
+            $(this.options.process.processBox).find('span').eq(idx).addClass('cur').siblings().removeClass('cur');
+        },
+        run:function(){
+            var _this = this;
+            this.init();
+            this.$eparnet.on('touchstart',function(e){
+                _this.startFn(e);
+            });
+            this.$eparnet.on('touchend',function(e){
+                _this.endFn(e);
+            });
+            if(this.options.loop == true && this.options.autoplay.play == true){
+                this.mytimer = this.timer();
+            }
+        }
+    };
+    $.fn.myslide = function(options){
+        var _this = $(this);
+        var slide = new MySlide(_this,options);
+    };
+    /*模板解析*/
+    function ReplaceTemplate(D, T) {
+        function f(d, t) {
+            var sb = t, b = null;
+            for (var o in d) {
+                b = new RegExp('{' + o + '}', 'gi');
+                sb = sb.replace(b, '' + d[o])
+            }
+            return sb
+        }
+        var SB = '';
+        if (Object.prototype.toString.call(D) == '[object Array]') {
+            for (var i = 0; i < D.length; i++) {
+                SB += arguments.callee(D[i], T)
+            }
+        } else {
+            SB = D == '' ? '' : f(D, T)
+        }
+        return SB
+    };
+    /*曝光或点击统计 name-->统计名称  type->1--曝光  其他-->点击*/
+    function _tj(_tag,name,type){
+        type = type || 1;
+        var _platfrom = _isPlatform(),_mark;
+        if(_platfrom == 'ios'){
+            _mark = 'auto_iphone';
+        }else {
+            _mark = 'auto_android';
+        };
+        if(type==1){
+            setTimeout(function(){
+                var isShow = isEleShow(_tag);
+                if(isShow){
+                    window._simple_ahas = window._simple_ahas || [];
+                    window._simple_ahas.push(['_trackEvent','mda_app_downbox_show',{'mark':_mark,'type':name,'extends':'1'}]);
+                };
+            },4000);
+        }else{
+            window._simple_ahas = window._simple_ahas || [];
+            window._simple_ahas.push(['_trackEvent','mda_app_downbox_show',{'mark':_mark,'type':name,'extends':'2'}]);
+        }
+    }
+    /*
+        以某个元素为坐标添加广告元素节点公用方法
+        l-->坐标元素
+        e-->插入标签字符
+        w-->方式after before append prepend
+        s-->样式文本(_myTag代表当前class),
+        bindWay -->添加元素事件方法
+        bindFn --> 添加元素事件函数
+        config = {
+            l:,
+            e:,
+            w:,
+            s:,
+        }
+    */
+
+    var GlobalClassList = [],AutoClassMaped={};
+
+    var createClass = function(len){
+        len = len || (Math.floor(Math.random()*10) + 6);
+        var $str = 'ABCDEFGHJKMNPQRSTWXYZabcdefhijkmnprstwxyz123456789';
+        var max =  $str.length;
+        var classname = '',s;
+        for (i = 0; i < len; i++) {
+            var _str = $str.charAt(Math.floor(Math.random() * max));
+            if(i==0 && !isNaN(_str)){
+                i--;
+            }else{
+                classname += _str;
+            };
+        };
+        if(GlobalClassList.indexOf(classname)==-1){
+            GlobalClassList.push(classname);
+            return classname;
+        }else{
+            return createClass();
+        };
+    };
+    function insert(config){
+        function InserAd(config){
+            this.loca = $(config.l).eq(0);
+            this.e = $(config.e);
+            this.w = config.w;
+            this.s = config.s;
+            this.classname = this.classname ? this.classname + ' '  + this.createClassName() : this.createClassName();
+            
+        };
+        InserAd.prototype.init = function(){
+            if(!this.loca.length){
+                return false;
+            };
+            return this.insertEle();
+        };
+
+        InserAd.prototype.createClassName = createClass;
+
+        InserAd.prototype.createStyle = function(){
+            var that = this;
+            if(!this.s){
+                return;
+            };
+            var reg = new RegExp("_myTag","g");
+            this.s = (this.s).replace(reg,'.' + that.classname);
+            var style = document.createElement("style");
+            style.type = "text/css";
+            style.appendChild(document.createTextNode(that.s));
+            var head = document.getElementsByTagName("head")[0];
+            head.appendChild(style);
+            return true;
+        };
+        InserAd.prototype.insertEle = function(){
+            var that = this;
+            this.createStyle();
+            if(!this.e){
+                return false;
+            };
+            this.e.addClass(this.classname);
+            switch(that.w){
+                case 'append':
+                    this.loca.append(that.e);
+                    break;
+                case 'prepend':
+                    this.loca.prepend(that.e);
+                    break;
+                case 'after':
+                    this.loca.after(that.e);
+                    break;
+                case 'before':
+                    this.loca.before(that.e);
+                    break;
+            };
+            return that.e;
+        };
+        var ins = new InserAd(config);
+        return ins.init();
+    };
+    var layerDate  = '{"recommendid":0,"rchannelid":42,"rorderid":32,"randroidappname":"汽车之家","randroidapphref":"https://www.athmapp.com/downapp/m_head_carspec/","randroidappimg":"[{\u0027src\u0027:\u0027//www3.autoimg.cn/newsdfs/g24/M06/CD/D7/autohomecar__wKgHH1py7C2AazdlAAAkMeuiyT0507.png\u0027},]","riphoneappname":"汽车之家","riphoneapphref":"https://itunes.apple.com/cn/app/qi-che-zhi-jia/id385919493?mt\u003d8","riphoneappimg":"[{\u0027src\u0027:\u0027//www3.autoimg.cn/newsdfs/g24/M06/CD/D7/autohomecar__wKgHH1py7C2AazdlAAAkMeuiyT0507.png\u0027},]","randroidappcomment":"买车怕吃亏？往这儿看\u0026gt;\u0026gt;","riphoneappcomment":"买车怕吃亏？往这儿看\u0026gt;\u0026gt;","randroidappcomment2":"0","riphoneappcomment2":"0","riphoneapptype":1,"randroidapptype":1,"randroidappcomment3":"立即领取","riphoneappcomment3":"立即领取","randroidwxhref":"http://a.app.qq.com/o/simple.jsp?pkgname\u003dcom.cubic.autohome\u0026amp;ckey\u003dCK1369846703977","riphonewxhref":"http://a.app.qq.com/o/simple.jsp?pkgname\u003dcom.cubic.autohome\u0026amp;ckey\u003dCK1369846703977","randroideid":"","riphoneeid":""}';
+    if(!!layerDate){
+        layerDate = JSON.parse(layerDate);
+    }else{
+        return;
+    };
+    
+    var _SchemeKey = "_7ac5b87ec",_Scheme;
+    if(!_SchemeKey){
+        _Scheme = "";
+        if(_Scheme==''){
+            _Scheme = 'autohome://apphomepage?src=m_index';
+        };
+    }else{
+        _Scheme = decodeURIComponent(window[_SchemeKey]);
+        if(_Scheme==''){
+            _Scheme = 'autohome://apphomepage?src=m_index';
+        };
+    }
+
+    /*调起函数*/
+    var _autoOpenRun_ = _AutoHomeOpen({
+        scheme_Ios: _Scheme,
+        scheme_Adr: _Scheme,
+        download_url_ios: layerDate.riphoneapphref,
+        download_url_andorid: layerDate.randroidapphref,
+        download_url_YYB_ios: layerDate.riphonewxhref,
+        download_url_YYB_andorid:layerDate.randroidwxhref
+    });
+    /*添加虚拟评论*/
+    (function(){
+        /*QQ浏览器&&Ios不展示&&android*/
+        if(navigator.userAgent.toLowerCase().indexOf('mqqbrowser')>0 && navigator.userAgent.toLowerCase().indexOf('iphone')>0){
+            return;
+        };
+        
+        /*获到当前时间*/
+        var getNowDate=function(){
+            var _date = new Date();
+            var y,m,d,hh,mm,ss;
+            y = _date.getFullYear();
+            m = parseInt(_date.getMonth()+1) > 9 ? _date.getMonth()+1 : '0' + (_date.getMonth()+1);
+            d = parseInt(_date.getDate()) > 9 ? _date.getDate() : '0' +  _date.getDate();
+            hh = parseInt(_date.getHours()) > 9 ? _date.getHours() : '0' + _date.getHours();
+            mm = parseInt(_date.getMinutes()) > 9 ? _date.getMinutes() : '0' + _date.getMinutes();
+            return y + '-' + m + '-' + d + ' ' + hh + ':' + mm;
+        };
+        /*模拟用户信息*/
+        var createUserInfo = {
+            getUserName:function(){
+                var nameArr = [
+                    '爱车一族',
+                    '秋名山车神',
+                    '我爱小汽车',
+                    '我爱我车车',
+                    '汽车人起飞',
+                    '爱车的小丫头',
+                    '赐我一辆小车吧'
+                ];
+                return nameArr[Math.floor(Math.random()*nameArr.length)];
+            },
+            getUserPhoto:function(){
+                var photoArr = [
+                    '//www2.autoimg.cn/newsdfs/g19/M03/A5/B1/autohomecar__wKjBxFk6WJyASLPyAADLqF9Pn2U464.jpg',
+                    '//www2.autoimg.cn/newsdfs/g10/M0A/CE/78/autohomecar__wKgH4Fk6WQKAVbpyAAB58RlwFHM606.jpg',
+                    '//www2.autoimg.cn/newsdfs/g10/M0F/CE/7B/autohomecar__wKgH4Fk6WRKASgrTAACKl9LeDSI962.jpg',
+                    '//www2.autoimg.cn/newsdfs/g23/M0A/A8/32/autohomecar__wKjBwFk6WSuABYVJAADqCI106ng223.jpg',
+                    '//www2.autoimg.cn/newsdfs/g4/M13/C9/0A/autohomecar__wKgHy1k6WTmAG_gsAAC-_xZGzUk895.jpg',
+                    '//www2.autoimg.cn/newsdfs/g4/M10/CC/AD/autohomecar__wKjB01k6WVaAHx4yAAELB-fpX0s097.jpg',
+                    '//www2.autoimg.cn/newsdfs/g21/M07/A3/C5/autohomecar__wKgFVVk6WXSAWv72AACPVJiyqtM000.jpg',
+                    '//www2.autoimg.cn/newsdfs/g9/M14/D2/41/autohomecar__wKgH31k6WYKAWu4-AACvfWr2XPw604.jpg'
+                ];
+                return photoArr[Math.floor(Math.random()*photoArr.length)];
+            }
+        };
+        function addComment(obj,cb){
+            /*{
+                regArr:正则，
+                domStr:Dom结构 添加文案为"_myAddStr"，
+                txtArr:文案，
+                tarStr:事件源，
+                locStr:插入坐标，
+                wayStr:插入方式，
+                styStr:样式
+            }*/
+            var Ac = function(obj,cb){
+                this.regArr = obj.regArr;
+                this.domStr = obj.domStr;
+                this.txtArr = obj.txtArr;
+                this.tarStr = obj.tarStr;
+                this.locStr = obj.locStr;
+                this.wayStr = obj.wayStr;
+                this.styStr = obj.styStr;
+                this.init();
+            };
+            Ac.prototype.init = function(){
+                var that = this;
+                if(!this.regArr ||  !this.domStr || !this.txtArr || !this.locStr || !this.wayStr || !this.isNowPage()){
+                    return;
+                };
+                this.domStr = this.createHtml(that.domStr,that.getTxt());
+                var addComm = insert({
+                    l:that.locStr,
+                    e:that.domStr,
+                    w:that.wayStr,
+                    s:that.styStr
+                });
+                var evObj = null;
+                evObj = $(addComm).find(that.tarStr).length ? addComm.find(that.tarStr) : addComm;
+                if(!evObj){
+                    return;
+                };
+                _tj(addComm,'list',1)
+                $(evObj).on('click',function(){
+                    _tj(addComm,'list',2);
+                    _AutoHomeOpen({
+                        scheme_Ios: _Scheme,
+                        scheme_Adr: _Scheme,
+                        download_url_ios: "https://itunes.apple.com/cn/app/qi-che-zhi-jia/id385919493?mt=8",
+                        download_url_andorid: "https://www.athmapp.com/downapp/m_bbsreply_a/",
+                        download_url_YYB_ios: "http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1369852018144",
+                        download_url_YYB_andorid:"http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1369852018144"
+                    })();
+                });
+                cb && cb(addComm);
+            };
+            Ac.prototype.isNowPage = function(){
+                var url = window.location.href,that = this;;
+                for(var i = 0; i < that.regArr.length; i++){
+                    if(!!url.match(that.regArr[i])){
+                        return true;
+                    }
+                };
+                return false;
+            };
+            Ac.prototype.getTxt = function(){
+                var that = this;
+                if(that.txtArr.length == 1){
+                    return that.txtArr[0];
+                }
+                var i = Math.floor(Math.random()*that.txtArr.length);
+                return that.txtArr[i];
+            };
+            Ac.prototype.createHtml = function(s1,s2){
+                var reg = new RegExp("_myAddStr","g");
+                return s1.replace(reg,s2);
+            };
+            return new Ac(obj,cb);
+        };
+        setTimeout(function(){
+            /*论坛最终页*/
+            addComment({
+                regArr:[/\/\/club.m.autohome.com.cn\/bbs\/(thread|threadqa)-[a-z]-\d+-\d+-\d+\.html/],
+                domStr:'<section class="post-follow outer-section bbs-post-replay insert-reply" style="display:none;"><div class="bbs-post-userfloor"><a class="user-face" href="javascript:;"><img src="'+createUserInfo.getUserPhoto()+'" width="120" height="120"></a><dl class="user-brief"><dt><a class="user-name" href="javascript:;">'+createUserInfo.getUserName()+'</a></dt><dd><time>'+getNowDate()+'</time></dd></dl></div><section class="content" style="margin-bottom:0.75rem;"><div class="txt">_myAddStr</div></section></section>',
+                txtArr:[
+                    '用App查看帖子和回帖都很方便，推荐你们也<a href="javascript:;" data-tag="d_btn">下载【汽车之家】</a>体验一下。',
+                    '多亏了汽车之家App，里面的专业信息和车友们给了我很多帮助，让我买到了满意的车，之后就一直在上面学习，你也可以<a href="javascript:;" data-tag="d_btn">下载【汽车之家】</a>试试。',
+                    '用App有回帖可以及时收到提醒，和大家交流更方便，推荐你们也<a href="javascript:;" data-tag="d_btn">下载【汽车之家】</a>体验一下。',
+                    '哥们，用App看帖回帖都更方便，你们也可以<a href="javascript:;" data-tag="d_btn">下载【汽车之家】</a>试试。',
+                    '对了，我最近下载了汽车之家App，发现用起来更便捷而且也不占手机空间，推荐你们也<a href="javascript:;" data-tag="d_btn">下载【汽车之家】</a>试试。',
+                    '对，用App看帖子可以自由切换大小图模式，特别省流量，推荐你们也<a href="javascript:;" data-tag="d_btn">下载【汽车之家】</a>体验一下。',
+                    '很多精彩的帖子想分享给朋友，发现用App一键就分享到微信了，真心方便，大家也可以<a href="javascript:;" data-tag="d_btn">下载【汽车之家】</a>试试啊。',
+                    '用App看帖选小图模式，流量能省差不多50%呢，你们也可以<a href="javascript:;" data-tag="d_btn">下载【汽车之家】</a>试试。',
+                ],
+                tarStr:"[data-tag='d_btn']",
+                locStr:"#reply-wrap",
+                wayStr:"append"
+            });
+            /*车系论坛最终页*/
+            addComment({
+                regArr:[/\/\/club.m.autohome.com.cn\/bbs\/forum-[a-z]-\d+-\d+\.html/],
+                domStr:'<li><a href="javascript:;" data-tag="d_btn"><i class="icon-bbs"></i><div class="caption"><h4>_myAddStr</h4></div><div class="comment"><i class="iconfont icon-comment"></i><span id="span_reply_63577901">98回帖</span></div><div class="view"><i class="iconfont icon-eye"></i><span>3220阅读</span></div><time>'+getNowDate()+'</time></a></li>',
+                txtArr:[
+                    '下载【汽车之家】，新用户最高送88元现金红包~数量有限先到先得',
+                    '用App看帖回帖，很方便也不占手机内存，推荐大家下载【汽车之家】体验。',
+                    'App看帖选小图模式，流量能省50%，推荐大家下载【汽车之家】体验。'
+                ],
+                tarStr:"[data-tag='d_btn']",
+                locStr:$(".module-list-post").children().eq(29),
+                wayStr:"prepend"
+            });
+            /*文章最终页*/
+            addComment({
+                regArr:[/\/\/m.autohome.com.cn\/news\/\d+\/\d+\.html#pvareaid=\d+/,/\/\/m.autohome.com.cn\/drive\/\d+\/\d+/,/\/\/m.autohome.com.cn\/advice\/\d+\/\d+\.html#pvareaid=\d+/,/\/\/m.autohome.com.cn\/use\/\d+\/\d+\.html#pvareaid=\d+/,/\/\/m.autohome.com.cn\/culture\/\d+\/\d+\.html#pvareaid=\d+/,/\/\/m.autohome.com.cn\/tech\/\d+\/\d+\.html#pvareaid=\d+/,/\/\/m.autohome.com.cn\/tuning\/\d+\/\d+-\d\.html#pvareaid=\d+/,/\/\/m.autohome.com.cn\/tuning\/\d+\/\d+-\d\.html#pvareaid=\d+/,/\/\/chejiahao.m.autohome.com.cn\/info\/\d+#pvareaid=\d+/],
+                domStr:'<li><div class="user"><a class="avatar" href="javascript:;"><img src="'+createUserInfo.getUserPhoto()+'"></a><a class="name" href="javascript:;">'+createUserInfo.getUserName()+'<i class="iconfont icon-v"></i></a></div><div class="cont" style="margin-bottom:0.375rem"><p>_myAddStr</p></div><div class="handle"><time>'+getNowDate()+'</time></div></li>',
+                txtArr:[
+                    '用App看文章，有回复时可以及时收到提醒，和大家交流更方便，推荐你们也<a href="javascript:;" data-tag="d_btn" style="color:#2f75bb;">下载【汽车之家】</a>试试。',
+                    '对了，我最近下载了汽车之家App，发现用起来更便捷而且也不占手机内存空间，推荐你们也<a href="javascript:;" data-tag="d_btn" style="color:#2f75bb;">下载【汽车之家】</a>试试。',
+                    '对了，我最近下载了汽车之家App，发现用起来更便捷而且也不占手机内存空间，推荐你们也<a href="javascript:;" data-tag="d_btn" style="color:#2f75bb;">下载【汽车之家】</a>试试。',
+                    '推荐<a href="javascript:;" data-tag="d_btn" style="color:#2f75bb;">下载【汽车之家】</a>，新用户最高送88元现金红包~数量有限先到先得。',
+                    '用App看文章选小图模式，流量能省差不多50%呢，你们也可以<a href="javascript:;" data-tag="d_btn" style="color:#2f75bb;">下载【汽车之家】</a>试试。'
+                ],
+                tarStr:"[data-tag='d_btn']",
+                locStr:"#reply-news-list",
+                wayStr:"append"
+            });
+            /*右下角app下载*/
+            addComment({
+                regArr:[/\/\/v.m.autohome.com.cn\/v-\d+\.html#pvareaid=\d+/,/\/\/v.m.autohome.com.cn\/#pvareaid=\d+/],
+                domStr:'<i class="fn-hide"><a href="javascript:;" data-tag="d_btn">_myAddStr</a></i>',
+                txtArr:[
+                    '下载<br>App'
+                ],
+                tarStr:"[data-tag='d_btn']",
+                locStr:".wrapper .icon-backtop",
+                wayStr:"before",
+                styStr:"_myTag{position:fixed;right:0.9375rem;bottom:7rem;z-index:996;display:block;width:2.75rem;font-size:0.8rem;height:1;text-align:center;background-color:rgba(0,0,0,0.8);-webkit-border-radius:0.1875rem;border-radius:0.1875rem;} _myTag a{display: block;width:100%;color:#FFF;padding:0.625rem 0;text-align:center;}"
+            },function(o){
+                var win = $(window),doc = $(document),timer;
+                win.scroll(function () {
+                    if (timer) {
+                        clearTimeout(timer);
+                    }
+                    timer = setTimeout(function () {
+                        if (win.scrollTop() > win.height()) {
+                            o.removeClass("fn-hide");
+                        } else {
+                            o.addClass("fn-hide");
+                        }
+                    },100);
+                });
+            });
+        },500)
+    })();
+    /*顶部Icon--下载*/
+    (function(){
+        /*if(_isFromBaiDuSearch()){
+            return;
+        };*/
+        /*QQ浏览器&&Ios不展示&&android*/
+        if(navigator.userAgent.toLowerCase().indexOf('mqqbrowser')>0 && navigator.userAgent.toLowerCase().indexOf('iphone')>0){
+            return;
+        };
+        var AppIcon = {"add":1,"type":1};
+        if( !AppIcon || AppIcon.add== 0 || AppIcon.type == 0 ){
+            return;
+        };
+        var oIcon = null;
+        var _mystyle = '_myTag{width:24px;height: 40px;position:relative;float:right;background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAuCAMAAABZAGpeAAAAnFBMVEUAAAD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////+TINBkAAAAM3RSTlMAIg+HptNKzVQIBPn08JbeekQTwIPmsHNPOykeGuubkWVBOAzIuKGMf3ZsXjQvLVoxJNvRBbxaAAABn0lEQVRIx+WW626CMBiGvyFYSmGighPF8/k43Xv/9zbECi0qLiFLluz5RRueJm3f9itl8I0l8BC3/Un3tBhKMB0q0oH30Xt7yGEF+FTgCEzpKR/wOOls0abnOB72pBPApBIs1Emn9h8FH8syYX4ntGq9MiEKOFXEqRv5d9dO6B7z3NgXmjN9DqaSnCtWJIPvypjXnHzQEKKfr9iAMWYJiEnaNgCWEAKdzNgBWOXCe7oOC4RcCkb6k8CYJAwWvJku0GyArirQGnO6MoHoh9gWBDKx1oQD3Oy4LcnHV1HowNeEKTxKOQMnarno6kLfxUQThlhQygjttNlWBV5vgJEi9IeQATGuY/eAkxQk4VkKN4LsiDcvWFiqgjeMSROYLTetgRsillFPLpfYIcqEQ9KRJcOGaFxxEaiTVgRDy3q2x2MM+GthmqeIDzB+LZhKTgOw14Kn3JGxQOsSmZEmcIBTTn1HOU37ElM/Jg076a1OxKkEY08FxhiVCQtEf/+q/H0heClULYo9YPJc2MBz7gu7+6ywRyPAr/50IL5hP3mcfANNbk5mZMmAagAAAABJRU5ErkJggg==) center center / 24px 23px no-repeat;cursor:pointer;}_myTag i{position:absolute;width:6px;height:6px;border-radius:100%;-webkit-border-radius:100%;right:0px;top:6px;background:#ff7700;opacity:0;-webkit-animation:ani-twinkle 1500ms 3;} @keyframes ani-twinkle{from{opacity:1;}to{opacity:0}}';
+
+        var oicon_ck = "bil2W38_eikP2W38_dera2W38_ayer2W38_%60%60268";
+        var oicon_ck_key = decodeURIComponent(oicon_ck).split('``')[0] + '_appicon';
+        var oicon_ck_val = decodeURIComponent(oicon_ck).split('``')[1] + '_appicon';
+        switch (AppIcon.type){
+            case 1:
+                oIcon = insert({
+                    l:'.athm-nav-header .athm-nav__searchframe',
+                    e: $.getCookie(oicon_ck_key, '0') == oicon_ck_val ? '<p></p>' : '<p><i></i></p>',
+                    w:'before',
+                    s:_mystyle
+                });
+                break;
+            case 2:
+                oIcon = insert({
+                    l:'.athm-nav-header .athm-nav__searchframe',
+                    e: $.getCookie(oicon_ck_key, '0') == oicon_ck_val ? '<p></p>' : '<p><i></i></p>',
+                    w:'after',
+                    s:_mystyle
+                });
+                break;
+        };
+        if(oIcon){
+            _tj(oIcon,'appIconDown',1);
+            oIcon.on('click',function(){
+                $.setCookie(oicon_ck_key, oicon_ck_val, { domain: 'autohome.com.cn', expireHours: 24 * 30 });
+                _tj(oIcon,'appIconDown',2);
+                _AutoHomeOpen({
+                    scheme_Ios: _Scheme,
+                    scheme_Adr: _Scheme,
+                    download_url_ios: "https://itunes.apple.com/cn/app/qi-che-zhi-jia/id385919493?mt=8",
+                    download_url_andorid: "https://www.athmapp.com/downapp//m_topright_a/",
+                    download_url_YYB_ios: "http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1369852018146",
+                    download_url_YYB_andorid:"http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1369852018146"
+                })();
+            });
+        };
+    })();
+    /*首页红包 --- 首页红包隐藏*/
+    (function(){
+        if(_isFromBaiDuSearch() || true){
+            return;
+        };
+        /*QQ浏览器&&Ios不展示&&android*/
+        if(navigator.userAgent.toLowerCase().indexOf('mqqbrowser')>0 && navigator.userAgent.toLowerCase().indexOf('iphone')>0){
+            return;
+        };
+        var redPacket = "1";
+        if( !redPacket || navigator.userAgent.toLowerCase().indexOf('vivo') > -1){
+            return;
+        };
+
+        var __cookie = $.getCookie('red_packet_20180813','');
+        if(__cookie){
+            $('#recommend-envelope-detail').hide();
+            return;
+        };
+        /*红包button*/
+        var red_packet = null,isShowFlog=true;
+        var _mystyle = '_myTag{position:fixed;bottom:6.875rem;right:0.875rem;z-index: 999;}_myTag > div{position: relative;width:3.125rem;height:3.75rem;overflow: hidden;}_myTag img {display:block;width:100%;height:100%;}_myTag .icon-cross {position: absolute;top: 2px;left: -1.5625rem;padding: 0.5rem;font-size: 0.75rem;color: #b13526;line-height: 1;}_myTag b{position:absolute;top:-0.5rem;left:-1rem;width:0.8rem;height:0.8rem;background:url(data:image/png;base64,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) no-repeat;background-size:100% 100%;}';
+
+        var handlesNum = $('.article-fixed-handle').children().length;
+        if( handlesNum == 2 ){
+            _mystyle += '_myTag{bottom:9.875rem;}';
+        };
+
+        /*请求红包配置*/
+        $.ajax({
+            type: 'GET',
+            url: '//activity.app.autohome.com.cn/api/actiCommon/queryActi',
+            data: {
+                actiid:'MredPacketShowConfig'
+            },
+            dataType: 'json',
+            timeout: 1000,
+            success: function(data){
+                if( data.returncode == 0){
+                    var result = data.result;
+                    if( result.content == 0){
+                        return;
+                    };
+                    var iconShowSrc = result.url;
+                    var layerShowSrc = result.introduction;
+                    var downConfig = null;
+                    if(typeof result.conf =='object'){
+                        downConfig = JSON.parse(result.conf);
+                    }else{
+                        downConfig = result.conf;
+                    }
+
+                    /*创建红包*/
+                    redpacket = insert({
+                        l:'.wrapper',
+                        e: '<div><div><img src="' + iconShowSrc + '"></div><b></b></div>',
+                        w:'after',
+                        s:_mystyle
+                    });
+
+                    var win = $(window), timer;
+                    win.scroll(function () {
+                        if(!isShowFlog){
+                            return;
+                        };
+                        if (timer) {
+                            clearTimeout(timer);
+                        };
+                        timer = setTimeout(function () {
+                            if (win.scrollTop() > win.height()) {
+                                if(handlesNum == 1){
+                                    $(redpacket).css({bottom:'10.125rem'});
+                                    return;
+                                };
+                                $(redpacket).css({bottom:'13.125rem'});
+                            }else {
+                                if(handlesNum == 2){
+                                    $(redpacket).css({bottom:'9.875rem'});
+                                    return;
+                                };
+                                $(redpacket).css({bottom:'6.875rem'});
+                            };
+                        }, 100);
+                    });
+                    /*红包弹层*/
+                    var redpacketBox = null;
+                    var _myRedPacketStyle = '_myTag{display:none;}_myTag > div{position:fixed;top:50%;left: 5%;z-index: 1010;width: 90%;-webkit-transform: translateY(-50%);transform: translateY(-50%);} _myTag >div >img{width:100%;height: auto;}_myTag >div >a{position: absolute;top: 55%;left: 30%;z-index: 10;width: 40%;padding-top: 40%;-webkit-tap-highlight-color: transparent;tap-highlight-color: transparent;outline: 0;box-shadow: none;} _myTag >div >span{position: absolute;top: 0;left: 0;z-index: 10;width: 10%;padding-top: 10%;}_myTag > section{position: fixed;top: 0;right: 0;bottom: 0;left: 0;z-index: 1000;background-color: rgba(0,0,0,0.6);}';
+                    redpacketBox = insert({
+                        l:'.wrapper',
+                        e: '<section><div><img src="' + layerShowSrc + '"><a></a><span></span></div><section></section></section>',
+                        w:'after',
+                        s:_myRedPacketStyle
+                    });
+
+                    _tj(redpacket,'redPacket',1);
+
+                    redpacket.on('click',function(){
+                        redpacketBox.show();
+                        _tj(redpacket,'redPacket',2);
+                    });
+                    
+                    redpacket.find('b').on('click',function(){
+                        $.setCookie("red_packet_20180813", 1, {expireHours: 24 * 3,domain: 'm.autohome.com.cn'});
+                        redpacket.remove();
+                        redpacketBox.remove();
+                        isShowFlog = false;
+                    });
+                    redpacketBox.find('a').on('click',function(){
+                        setTimeout(function(){
+                            if(typeof downConfig == 'object'){
+                                _AutoHomeOpen(downConfig)();
+                                return;
+                            };
+                            location.href = downConfig;
+                        },300);
+                        _tj(redpacketBox,'redPacketBox',2);
+                    });
+                    redpacketBox.find('span').on('click',function(){
+                        redpacketBox.hide();
+                    });
+                };
+            },
+            error: function(xhr, type){
+                console.log('MredPacketShowConfig Ajax error!');
+            }
+        });
+    })();
+    /*首页信用卡推广*/
+    (function(){
+
+        return;
+
+        var cardFlog = "1211001_40_1347";
+        
+        if(!cardFlog || cardFlog != "1211001_40_1347" || _isFromBaiDuSearch()){
+            return;
+        };
+
+        var __cookie = $.getCookie('index_cardspread','');
+        if(__cookie){
+            return;
+        };
+
+        var CardSpread = null;
+        /*信用卡弹层*/
+        var _mystyle = '_myTag{display:none;}_myTag>div{position:fixed;top:50%;left:20%;z-index:1010;width: 60%;-webkit-transform: translateY(-50%);transform: translateY(-50%);} _myTag >div >img{width:100%;height: auto;}_myTag >div >a{position: absolute;top: 82%;left: 30%;z-index: 10;width: 40%;padding-top: 16%;-webkit-tap-highlight-color: transparent;tap-highlight-color: transparent;outline: 0;box-shadow: none;} _myTag >div >span{position: absolute;bottom: -24%;left: 43%;z-index: 10;width: 14%;padding-top: 14%;background:url(https://x.autoimg.cn/app/mainSoftware/activity/mcard20180426/closeBtn.png) no-repeat;background-size:100% 100%;}_myTag > section{position: fixed;top: 0;right: 0;bottom: 0;left: 0;z-index: 1000;background-color: rgba(0,0,0,0.6);}';
+        CardSpread = insert({
+            l:'.wrapper',
+            e: '<section><div><img src="https://x.autoimg.cn/app/mainSoftware/activity/mcard20180426/layer_2018_05_11.png"><a></a><span></span></div><section></section></section>',
+            w:'after',
+            s:_mystyle
+        });
+        CardSpread.show();
+        /*关闭*/
+        CardSpread.find('span').on('click',function(){
+            $.setCookie("index_cardspread", 1, {expireHours: 24,domain: 'm.autohome.com.cn'});
+            CardSpread.hide();
+        });
+        CardSpread.find('section').on('click',function(){
+            $.setCookie("index_cardspread", 1, {expireHours: 24,domain: 'm.autohome.com.cn'});
+            CardSpread.hide();
+        });
+        /*跳转*/
+        CardSpread.find('a').on('click',function(){
+            $.setCookie("index_cardspread", 1, {expireHours: 24,domain: 'm.autohome.com.cn'});
+            CardSpread.hide();
+            window.location.href="https://pay.autohome.com.cn/site-wap/activity/credit/sBox.htm?__sub_from=A20015033415300100&pvareaid=3341530&wxf_from=summer&wxs_from=box";
+        });
+    })();
+    /*找车页中部下载*/
+    (function(){
+        /*QQ浏览器&&Ios不展示&&android*/
+        if(navigator.userAgent.toLowerCase().indexOf('mqqbrowser')>0 && navigator.userAgent.toLowerCase().indexOf('iphone')>0){
+            return;
+        };
+        
+        if(typeof pvTrack != 'object'){
+            return;
+        };
+        var findCar=null;
+        if( pvTrack.subcategory  == 3282 && pvTrack.category == 572 && pvTrack.site == 1211002){
+            var _mystyle = "_myTag{height:55px;background-color:#FFF;overflow:hidden;padding:5px 10px 5px 20px;box-sizing:border-box;-webkit-box-sizing:border-box;margin-top:8px;} _myTag>div{padding:0 70px 0 50px;position:relative;height:45px;} _myTag>div>img{position: absolute;width: 45px;height:45px;left:0;top:0;}_myTag>div>p{font-size: 14px;color: #1B1B1B;line-height: 45px;height: 45px;overflow: hidden;text-overflow: ellipsis;-webkit-text-overflow: ellipsis;white-space:nowrap;}_myTag>div>a{    position: absolute;width: 68px;height: 28px;border-radius: 14px;-webkit-border-radius: 14px;text-align: center;line-height: 28px;font-size: 12px;color: #FFF;background: #2873FF;right:0;top:8px;}";
+            findCar = insert({
+                l:'#div_ListBrand',
+                e:'<section><div><img src="//www3.autoimg.cn/newsdfs/g24/M06/CD/D7/autohomecar__wKgHH1py7C2AazdlAAAkMeuiyT0507.png"><p>上App,每月看热门车排行</p><a href="javascript:;">立即打开</a></div></section>',
+                w:'before',
+                s:_mystyle
+            });
+            
+            _tj(findCar,'findCarCenter',1)
+            findCar.find('a').on('click',function(){
+                _tj(findCar,'findCarCenter',2);
+                _AutoHomeOpen({
+                    scheme_Ios: _Scheme,
+                    scheme_Adr: _Scheme,
+                    download_url_ios: "https://itunes.apple.com/cn/app/qi-che-zhi-jia/id385919493?mt=8",
+                    download_url_andorid: "https://www.athmapp.com/downapp/m_shouyecarlist_a/",
+                    download_url_YYB_ios: "http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1369851686066",
+                    download_url_YYB_andorid:"http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1369851686066"
+                })();
+            })
+        };
+    })();
+    /*视频最终页Banner&评论右下角*/
+    (function(){
+        /*QQ浏览器&&Ios不展示&&android*/
+        if(navigator.userAgent.toLowerCase().indexOf('mqqbrowser')>0 && navigator.userAgent.toLowerCase().indexOf('iphone')>0){
+            return;
+        };
+        
+        var videoBanner = "";
+        if( !videoBanner){
+            return;
+        };
+        var vBanner = null,vGoApp = null;
+        var _mystyle1 = '_myTag{display: block;margin: 0.75rem 0.9375rem 0;padding-left: 0;padding-right: 0;text-align: center;} _myTag img{width:100%;height:auto;cursor:pointer}';
+        var _src = _isPlatform() == 'ios' ? layerDate.riphoneappimg : layerDate.randroidappimg;
+        vBanner = insert({
+            l:'.video-details .player',
+            e:'<div><img src="'+_src+'"></div>',
+            w:'after',
+            s:_mystyle1
+        });
+        _tj(vBanner,'videoBanner',1);
+        if(vBanner){
+            vBanner.on('click',function(){
+                _tj(vBanner,'videoBanner',2);
+                _autoOpenRun_();
+            });
+        };
+        /*var _mystyle2 = "_myTag{cursor: pointer}";
+        vGoApp = insert({
+            l:'.video-comment .multiple',
+            e:'<a class="underbed" href="javascript:;">到App互动更便捷<i class="iconfont icon-arrow-right"></i></a>',
+            w:'after',
+            s:_mystyle2
+        });
+        _tj(vGoApp,'videoGoApp',1)
+        vGoApp.on('click',function(){
+            _tj(vGoApp,'videoGoApp',2);
+            _autoOpenRun_();
+        });*/
+    })();
+    /*文章最终页
+    (function(){
+        var articlePage = "";
+        if( !articlePage){
+            return;
+        };
+        var _mystyle = "";
+        articlePage = insert({
+            l:'.article-comment .multiple',
+            e:'<a class="underbed" href="javascript:;">到App互动更便捷<i class="iconfont icon-arrow-right"></i></a>',
+            w:'after',
+            s:_mystyle
+        });
+        _tj(articlePage,'articlePage',1)
+        articlePage.on('click',function(){
+            _tj(articlePage,'articlePage',2);
+            _autoOpenRun_();
+        });
+    })();*/
+    /*文章最终页 -- 到App互动更便捷*/
+    (function(){
+        _tj($('#app-download-link'),'articlePage',1)
+        $('#app-download-link').on('click',function(){
+            _tj($(this),'articlePage',2);
+            _autoOpenRun_();
+        })
+    })();
+    /*图片最终页btn*/
+    (function(){
+        /*QQ浏览器&&Ios不展示&&android*/
+        if(navigator.userAgent.toLowerCase().indexOf('mqqbrowser')>0 && navigator.userAgent.toLowerCase().indexOf('iphone')>0 || navigator.userAgent.toLowerCase().indexOf('baiduboxapp') > -1){
+            return;
+        };
+        
+        var imgBtn = "";
+        if( !imgBtn){
+            return;
+        };
+        setTimeout(function(){
+            var imgbutton = null;
+            var _mystyle = '.s-view-img .view-footer .tit >a_myTag{position: absolute;right: 0;top:0;color:#fff;width:35px;height:20px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEYAAAAoCAYAAABD0IyuAAAEqElEQVRoge2aP3MaRxjGf86kFe5SROYLIJp0OZWZyYQ2E0fqY6nHoo8c97LVS4lrS3jSomTGpbB6o3wAYCajLugDKMWzL7cse3DIRHcweWZujnt5d9l9eP/t7j26u7v7kv8xhc+9z98AR8AXS+r7BmgB75fU36JIgDbwCs3Lx9DJL4F9oAmMfAWfmGWSguvrCPgq8p0N+lPRBZ4G/Rrq7l4N5F3vcxX4Dvgt6GeCmBgpm+4+DJ6zMAyes4geBQMMUQWezNEB6AXPMbJ/dJfBn8MZsO2+b+FZlk/MQ6JH8A8FaAEHc3Ri8PXrwAvgHHg7o00T2HLXGPOICS0gfC4LKgQTmwFzqwaKMSBL+cf10YPiLCYvEua7E2hCWTErdCVDLdJmHLNixMyLI3mxDOtqo8EeMZug0DWrKHZcAv2I/hsn/zmQjzNT2S3mHP3bbeACOCQ+0TCYN1y7t8QJ/Qg89r67QrFmHMw/+8SB/9doIkvoorT6AQXmSkS3hax0COw5WduT2WUxpubuDZQB63gou8VA6vf7pNlqB5HmW4MF0sRd58Sta+DaJYhgI+rSV1oFYgwnyDWOkfXUmSSmi1xhH02+CfyCAnOY9o2wLWDX6U/URKtEDCiW/ISXVgO8BDYQiQkKwDWmK19re+zpT2DViDHESIG0ljlwl8FPy5uu/S2KLbBGxGShyWRgfoksJlZBXyKXPEWWmCCX6sP6EeNbku8+257sKbKs7aBNA2WzTVgvYixjxWDyASLlHYott65dx8mvrcE6EdNBFtEjrWAbyJW+Ri6SkJLy3On96mQ15FbAehETW7GbO/XRMsGC8HO05QBpdQ0rQEyffIvHeTjz+ukDz9zdj0VNVB+N8ArCR96eb97NqLxYdn8PijKtla4QmcdFDwTKQ0xCWmw1iC8SHxRlIWbX3a9RxmgUOBagHMRUUFawhR9oIZinna2kqzn07bTAVtUzUYasZNbSQdniGtUUsYXiEGWZM9IFo6GLFphWw/jnShXSPRpD7LxpjDJYjA3Yaghb0O1k6NeB12gX7hmqSWx/5V1Ef9/9ximqc14g6zxA2xJRFE2MBd1r0hqi4+670Raykgs0yQ6yHtvlqzFNqFW5h07nBPgWLQf2yHDDoomxyfvL/hGqRjfItprDiMwsLmwzIK1y/d+ws6ZooC+SmAoa1C2plRjsOUbMLfEtS2tTD+RZFbTpR8+jigy+DdLg+VeGjmUcn4iPc/rdCJ5jJPp4EhMWSYylZNsoCmGpdY9J10kiupCm4EEgzzqhfOzu0d3AoojZQoFyQDxegCzlA4pDoU7shNJiRSjfRqSF5Jt+bmIe4nzarCUMij76pDXNTqD7Bp0immwL1TUwfYC/gV7z8E8zd1BRGYtvQDHB14IuzCYG0mwVZo4+qmWuUBH3ByLglGmLuUABuQ386a7X7rupF4YM93Gl793993u0Bfn2CZrcvMDYIV5n/ICsrkF6vnRGnOgespYWaby5cLKs04Z7x5i7e7YDkZFZigcYZeiaPG8/PbRcyA2fmBvyvWq2iKXcLDKYMsGPMS2WO5G/XZ8rCd9i3hN/kbBMeLWA7oD0zcyF8S8B3hdeWnTnlAAAAABJRU5ErkJggg==) no-repeat;background-size:100% 100%;} .s-view-img .view-footer .tit>a_myTag:visited{color:#fffffe;}';
+            imgbutton = insert({
+                l:'#cartuan',
+                e:'<a href="javascript:;"></a>',
+                w:'after',
+                s:_mystyle
+            });
+            _tj(imgbutton,'imgpagebtn',1)
+            imgbutton.on('click',function(){
+                _tj(imgbutton,'imgpagebtn',2);
+                _AutoHomeOpen({
+                    scheme_Ios: _Scheme,
+                    scheme_Adr: _Scheme,
+                    download_url_ios: "https://itunes.apple.com/cn/app/qi-che-zhi-jia/id385919493?mt=8",
+                    download_url_andorid: "https://www.athmapp.com/downapp/m_carpic_a/",
+                    download_url_YYB_ios: "http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1369852311556",
+                    download_url_YYB_andorid:"http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1369852311556"
+                })();
+            });
+        },2000);
+    })();
+    /*车系综述*/
+    (function(){
+        /*QQ浏览器&&Ios不展示&&android*/
+        if(navigator.userAgent.toLowerCase().indexOf('mqqbrowser')>0 && navigator.userAgent.toLowerCase().indexOf('iphone')>0){
+            return;
+        };
+        
+        var _reg = /\/\/m.autohome.com.cn\/\d+\/#pvareaid=\d+/,
+        url=window.location.href,
+        seriesCenter=null;
+        if(!!url.match(_reg)){
+            var _mystyle = "_myTag{height:55px;background-color:#FFF;overflow:hidden;padding:5px 10px 5px 20px;box-sizing:border-box;-webkit-box-sizing:border-box;margin-top:8px;} _myTag>div{padding:0 70px 0 50px;position:relative;height:45px;} _myTag>div>img{position: absolute;width: 45px;height:45px;left:0;top:0;}_myTag>div>p{font-size: 14px;color: #1B1B1B;line-height: 45px;height: 45px;overflow: hidden;text-overflow: ellipsis;-webkit-text-overflow: ellipsis;white-space:nowrap;}_myTag>div>a{    position: absolute;width: 68px;height: 28px;border-radius: 14px;-webkit-border-radius: 14px;text-align: center;line-height: 28px;font-size: 12px;color: #FFF;background: #2873FF;right:0;top:8px;}";
+            seriesCenter = insert({
+                l:'.wrapper .summary-series',
+                e:'<section><div><img src="//www3.autoimg.cn/newsdfs/g24/M06/CD/D7/autohomecar__wKgHH1py7C2AazdlAAAkMeuiyT0507.png"><p>上App,每月看热门车排行</p><a href="javascript:;">立即打开</a></div></section>',
+                w:'after',
+                s:_mystyle
+            });
+            _tj(seriesCenter,'seriesPageCenter',1)
+            seriesCenter.find('a').on('click',function(){
+                _tj(seriesCenter,'seriesPageCenter',2);
+                _AutoHomeOpen({
+                    scheme_Ios: _Scheme,
+                    scheme_Adr: _Scheme,
+                    download_url_ios: "https://itunes.apple.com/cn/app/qi-che-zhi-jia/id385919493?mt=8",
+                    download_url_andorid: "https://www.athmapp.com/downapp/m_zongshu_wenzi/",
+                    download_url_YYB_ios: "http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1375285111011",
+                    download_url_YYB_andorid:"http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1375285111011"
+                })();
+            });
+        };
+    })();
+    /*车型综述*/
+    (function(){
+        /*QQ浏览器&&Ios不展示&&android*/
+        if(navigator.userAgent.toLowerCase().indexOf('mqqbrowser')>0 && navigator.userAgent.toLowerCase().indexOf('iphone')>0){
+            return;
+        };
+        
+        var _reg = /\/\/m.autohome.com.cn\/spec\/\d+\/#pvareaid=\d+/,
+        url=window.location.href,
+        summaryCenter=null;
+        if(!!url.match(_reg)){
+            var _mystyle = "_myTag{height:55px;background-color:#FFF;overflow:hidden;padding:5px 10px 5px 20px;box-sizing:border-box;-webkit-box-sizing:border-box;margin-top:8px;} _myTag>div{padding:0 70px 0 50px;position:relative;height:45px;} _myTag>div>img{position: absolute;width: 45px;height:45px;left:0;top:0;}_myTag>div>p{font-size: 14px;color: #1B1B1B;line-height: 45px;height: 45px;overflow: hidden;text-overflow: ellipsis;-webkit-text-overflow: ellipsis;white-space:nowrap;}_myTag>div>a{    position: absolute;width: 68px;height: 28px;border-radius: 14px;-webkit-border-radius: 14px;text-align: center;line-height: 28px;font-size: 12px;color: #FFF;background: #2873FF;right:0;top:8px;}";
+            summaryCenter = insert({
+                l:'.wrapper .summary-cartype',
+                e:'<section><div><img src="//www3.autoimg.cn/newsdfs/g24/M06/CD/D7/autohomecar__wKgHH1py7C2AazdlAAAkMeuiyT0507.png"><p>上App,每月看热门车排行</p><a href="javascript:;">立即打开</a></div></section>',
+                w:'after',
+                s:_mystyle
+            });
+            _tj(summaryCenter,'summaryPageCenter',1)
+            summaryCenter.find('a').on('click',function(){
+                _tj(summaryCenter,'summaryPageCenter',2);
+                _AutoHomeOpen({
+                    scheme_Ios: _Scheme,
+                    scheme_Adr: _Scheme,
+                    download_url_ios: "https://itunes.apple.com/cn/app/qi-che-zhi-jia/id385919493?mt=8",
+                    download_url_andorid: "https://www.athmapp.com/downapp/m_zongshu_wenzi/",
+                    download_url_YYB_ios: "http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1375285111011",
+                    download_url_YYB_andorid:"http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1375285111011"
+                })();
+            });
+        };
+    })();
+    /*车系配置*/
+    (function(){
+        /*QQ浏览器&&Ios不展示&&android*/
+        if(navigator.userAgent.toLowerCase().indexOf('mqqbrowser')>0 && navigator.userAgent.toLowerCase().indexOf('iphone')>0){
+            return;
+        };
+        
+        var _reg = /\/\/car.m.autohome.com.cn\/config\/series\/\d+\.html#pvareaid=\d+/,
+        url=window.location.href,
+        seriesConfig=null;
+        if(!!url.match(_reg)){
+            var _mystyle = ".parameter-detail.solo _myTag{bottom:0;}.parameter-detail _myTag:visited{color:#2f75ba;}.parameter-detail _myTag {position: absolute;bottom: 0;left: 6.25rem;z-index: 2;display: inline-block;font-size: 0.75rem;color: #2f75bb;line-height: 1.875rem}.parameter-detail _myTag .icon-down {display: inline-block;font-size: 100%;vertical-align:top;}";
+            seriesConfig = insert({
+                l:'.wrapper .parameter-detail .markbar',
+                e:'<a href="javascript:;"><i class="iconfont icon-down"></i>用App,省流量</a>',
+                w:'after',
+                s:_mystyle
+            });
+            _tj(seriesConfig,'seriesConfigPage',1)
+            seriesConfig.on('click',function(){
+                _tj(seriesConfig,'seriesConfigPage',2);
+                _AutoHomeOpen({
+                    scheme_Ios: _Scheme,
+                    scheme_Adr: _Scheme,
+                    download_url_ios: "https://itunes.apple.com/cn/app/qi-che-zhi-jia/id385919493?mt=8",
+                    download_url_andorid: "https://www.athmapp.com/downapp/m_peizhi_wenzi/",
+                    download_url_YYB_ios: "http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1375284828129",
+                    download_url_YYB_andorid:"http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1375284828129"
+                })();
+            });
+        };
+    })();
+    /*车型配置*/
+    (function(){
+        /*QQ浏览器&&Ios不展示&&android*/
+        if(navigator.userAgent.toLowerCase().indexOf('mqqbrowser')>0 && navigator.userAgent.toLowerCase().indexOf('iphone')>0){
+            return;
+        };
+        
+        var _reg = /\/\/car.m.autohome.com.cn\/config\/spec\/\d+\.html#pvareaid=\d+/,
+        url=window.location.href,
+        specConfig=null;
+        if(!!url.match(_reg)){
+            var _mystyle = ".parameter-detail.solo _myTag{bottom:0;}.parameter-detail _myTag:visited{color:#2f75ba;}.parameter-detail _myTag {position: absolute;bottom: 0;left: 6.25rem;z-index: 2;display: inline-block;font-size: 0.75rem;color: #2f75bb;line-height: 1.875rem}.parameter-detail _myTag .icon-down {display: inline-block;font-size: 100%;vertical-align:top;}";
+            specConfig = insert({
+                l:'.wrapper .parameter-detail .markbar',
+                e:'<a href="javascript:;"><i class="iconfont icon-down"></i>用App,省流量</a>',
+                w:'after',
+                s:_mystyle
+            });
+            _tj(specConfig,'specConfigPage',1)
+            specConfig.on('click',function(){
+                _tj(specConfig,'specConfigPage',2);
+                _AutoHomeOpen({
+                    scheme_Ios: _Scheme,
+                    scheme_Adr: _Scheme,
+                    download_url_ios: "https://itunes.apple.com/cn/app/qi-che-zhi-jia/id385919493?mt=8",
+                    download_url_andorid: "https://www.athmapp.com/downapp/m_peizhi_wenzi/",
+                    download_url_YYB_ios: "http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1375284828129",
+                    download_url_YYB_andorid:"http://a.app.qq.com/o/simple.jsp?pkgname=com.cubic.autohome&ckey=CK1375284828129"
+                })();
+            });
+        };
+    })();
+
+    if(_isFromBaiDuSearch()){
+        return;
+    };
+    if(_isPlatform() == 'ios'){
+        layerDate.riphoneappcomment2 = "1";
+    }else{
+        layerDate.randroidappcomment2 = '1';
+    };
+    /*_isFromBaiDuSearch();*/
+    /* 2017-11-23 .wrapper 更改为控制广告位显示位置 'bottom'为强制底部 "top"强制顶部*/
+    var _location = "";
+    if(navigator.userAgent.toLowerCase().indexOf("baiduboxapp") != -1){
+        _location = "hidden";
+    }else{
+        _location = ".wrapper";
+    };
+    if( _location == 'top'){
+        if(_isPlatform() == 'ios'){
+            layerDate.riphoneappcomment2 = "1";
+        }else{
+            layerDate.randroidappcomment2 = '1';
+        };
+    };
+    if( _location == 'bottom'){
+        if(_isPlatform() == 'ios'){
+            layerDate.riphoneappcomment2 = "0";
+        }else{
+            layerDate.randroidappcomment2 = '0';
+        };
+    };
+    if( _location == 'hidden'){
+        return;
+    };
+    
+        (function(){
+            var rc = function(n){
+                return $.getCookie(n, '0')
+            };
+            var sc = function(k,v){
+                $.setCookie(k, v, { domain: 'autohome.com.cn', expireHours: 24 * 3 });
+            };
+            var u = navigator.userAgent,
+                href=window.location.href,
+                _ck="bil2W38_eikP2W38_dera2W38_ayer2W38_%60%60268",
+                autoPCookie=["obil2D376_eikP2D376_dera2D376_","1882"];
+            if($.getCookie(autoPCookie[0], '') == autoPCookie[1] ||  href.indexOf('refuseads')>-1 || href.indexOf('sudoku.vivo.com')>-1){
+                $.setCookie(autoPCookie[0], autoPCookie[1], { domain: 'm.autohome.com.cn', expireHours: 1/60 });
+                return;
+            };
+
+            var _ckflog = decodeURIComponent(_ck).split('``');
+            var _c = rc(_ckflog[0]);
+            
+            
+            if ((_c == _ckflog[1])||document.URL.toLowerCase().indexOf("from=qq") > 0 || document.URL.toLowerCase().indexOf("from=360") > 0 || /cootekservice/ig.test(navigator.userAgent)) {
+                return;
+            };
+
+
+            if (layerDate == null || layerDate == "" || /autohomeapp/ig.test(u) || /Windows Phone/ig.test(u) ){
+                return;
+            };
+
+            /*视频最终页 || 广告最终页 轮播屏蔽*/
+            if( ""  || ""){
+                return;
+            };
+
+            /*baidu助手及百度App不展示 快应用内全站隐藏*/
+            if(navigator.userAgent.indexOf('appsearch')>0 ||  _isFromQQSearch() || navigator.userAgent.indexOf('com.autohome.quickapp')>0 || navigator.userAgent.toLowerCase().indexOf('baiduboxapp') > -1){
+                return;
+            };
+
+            /*今日头条或懂车帝跳转下载*/
+            if(navigator.userAgent.indexOf('AutoMobile')>0 ||  navigator.userAgent.indexOf('NewsArticle')>0){
+                window.location.href = 'http://app.autohome.com.cn/APP/r/m';
+                return;
+            };
+
+            /*QQ浏览器&&Ios不展示&&android*/
+            if(navigator.userAgent.toLowerCase().indexOf('mqqbrowser')>0 && navigator.userAgent.toLowerCase().indexOf('iphone')>0){
+                return;
+            };
+            if(navigator.userAgent.toLowerCase().indexOf('mqqbrowser')>0 && ( navigator.userAgent.toLowerCase().indexOf('android') > 0 || navigator.userAgent.toLowerCase().indexOf('adr') > 0 )){
+                return;
+            };
+            /*特定推广链接不展示*/
+            var links = ['https://m.autohome.com.cn/?pvareaid=1001318&origin=m.qq.com'],
+                nowHref = window.location.href,
+                link_result = false;
+            for(var i = 0; i<links.length; i++){
+                if(nowHref == links[i]){
+                    link_result = true;
+                    break;
+                };
+            };
+            if(link_result){
+                return;
+            };
+            
+
+            /*var classname = 'bf445eb7a4edbee9b58aab00c8ed3228f'*/;
+            /*下载链接*/
+            var imgArr,btnname,txtArr;
+            function strToArr(s,p){
+                return s.split(p);
+            };
+            function EvalStrArr(s){
+                return eval(s);
+            };
+            var reg = new RegExp("\u0026quot;","g");
+            if (/iPhone|iPad/ig.test(u)) {
+                layerDate.riphoneappimg = layerDate.riphoneappimg.replace(reg,"'");
+                imgArr = EvalStrArr(layerDate.riphoneappimg);
+                txtArr = strToArr(layerDate.riphoneappcomment,'|@|');
+                btnname = layerDate.riphoneappcomment3;
+            }else{
+                layerDate.randroidappimg = layerDate.randroidappimg.replace(reg,"'");
+                imgArr= EvalStrArr(layerDate.randroidappimg);
+                txtArr = strToArr(layerDate.randroidappcomment,'|@|');
+                btnname = strToArr(layerDate.randroidappcomment3);
+            };
+            /*Css*/
+            AutoClassMaped.BannerLiFirst = createClass();
+            AutoClassMaped.SlideClose = createClass();
+            AutoClassMaped.picshow = createClass();
+            AutoClassMaped.prograssBar = createClass();
+            AutoClassMaped.aSeat = createClass();
+            var styleTxt= '_myTag{z-index:999;left:0;bottom:0;width:100%;height:55px !important;background-color:#FFF;overflow:hidden;cursor:pointer;} _myTag>dl{position:relative;width:100%;display:-webkit-box;display:-moz-box;display:-ms-flexbox;} _myTag>ol>li{width:100%;height:55px !important;position:relative;padding:5px 10px 5px 20px;box-sizing:border-box;-webkit-box-sizing:border-box;} _myTag>ol>li>a.'+AutoClassMaped.SlideClose+'{position:absolute;left:0;top:0;width:20px;height:55px !important;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAABGdBTUEAALGPC/xhBQAAA5FJREFUSA29lmtIk1EYx93FNVsi60KRFUisiBGmGOV0dNEswaj0gwWF9aEkIvGTYPUt0iAoKKQQIwgppEQTsswu1JxTk8oP1gcLy6CkIrwku7jNfs/wHfM2NaUDZ897nvOc/+85z3ve911ExP9sIyMjarvdXtTZ2bloPrltbW0r0D0tmir5aWpqKgFWrFKpWgwGQ2ZCQkKf+OfSgKx2u93P0DDR89UiBqQCyGfs1qGhoeft7e1Lxf+vjV2s9Xg8NtYL5I1Op6sO7EgEW1paVg0PD0sG6+jvo6Ki0pOSkr7L3Gyaw+HY4PP5npL0SpJ36PX6THT6gyARA7bc6/U2ErSRoI+40lJTU3tmCmInm/x+/xPil7H+RXR09N74+PghWT8GJI7m5ubFBDcASyK4R61Wp1ksFoGGbexkC0k+IsjIuvrY2NicuLg4l7IocI+UgVhEf2u12jQu7cDWUIZXHBZzaMz4a5LbRlwjfoFUU679oRCJn7AjRaSjo8MwMDDwgLFAf2k0mgySeKvMKxbIbipQQ1JRQCpTUlKOYn3KvGKnBElAV1fXgt7e3vtcZrG4n56JkENZDGQ/kCogOnzl3M+TxPiV+VA7oXShkyaTyc3py8Z3D7EYudGUcYfEADlEucSvQ/yK1WrNnwoi8WF3JAHSENNwom5i8xi6ELyBLWAsiV4Acg4bts0IJAqIqoCVYaU8mBGMqphyXQxLGJ0MW7pQARFn3CM+gWDkXnyV8UzajEHs5jyAUoB+eh3isvY2/uPzBuIAXOYgyH3w8gAfplz7gBUBVuMvZ75wOljYeyQlIuPrWDlRHiC5PEu1iqjNZjuF/5rE0c6SQIkyN95OCWKxhkxvseAIIk4gB4A0jBcgkWPEVtDVxJUCOzM+RsaTgvhMRLpcrrssziHmD2+FLCAvJxMQHwnlElvJpZZ+FVghUDk8wTbhMHR3d+uB1I5C+njvpYeDiBLCVQhLUm56Absslx3KnNLG7Ejeb4ODg3UE7STgJ+XK4JXzTgmezrKzXcRIkgsB32FtHtYr64IgyhXjdDrr8VmY/Ea50pOTkz9I0GwaMCvxD4FFo1NjNBoPms1mTwDU2tq6hE+vfLASmfxCTyObT7MBhMZSus0cezk4Rvpjks4O1JFPuDwjifQuvu/WuUDQiGD968jIyO0k/IPhHl6+J8Qf+BzwTJTJ36OAY55+KON6+iXKGLxF8yQ9tcxfhTGyqgIdnhYAAAAASUVORK5CYII=) center center no-repeat;background-size:13px auto;} _myTag>ol>li>div{height: 45px;padding:0 70px 0 85px;position:relative;} _myTag>ol>li.'+AutoClassMaped.BannerLiFirst+'>div{padding:0 70px 0 50px;} _myTag>ol>li>div img{position:absolute;width:80px;height:45px;left: 0;top:0;}_myTag>ol>li.'+AutoClassMaped.BannerLiFirst+'>div img{width:45px;} _myTag>ol>li>div h3{font-weight:normal;font-size: 14px;color:#1B1B1B;line-height:45px;height:45px;overflow:hidden;text-overflow: ellipsis;-webkit-text-overflow:ellipsis;white-space: nowrap;} _myTag>ol>li>div span{position:absolute;width: 68px;height: 28px;border-radius: 14px;-webkit-border-radius: 14px;text-align: center;line-height: 28px;font-size:12px;color:#FFF;background:#2873FF;right:0;top:8px;} _myTag .'+AutoClassMaped.prograssBar+'{position: absolute;text-align: center;z-index: 10;width: 100%;left:0;bottom: 0.05rem;} _myTag .'+AutoClassMaped.prograssBar+' span{width:0.35rem;height:0.35rem;display:inline-block;border-radius:100%;background:#FFF;margin:0 0.25rem;background-color:#4d4d4d;} _myTag .'+AutoClassMaped.prograssBar+' span.cur{background-color:#2873ff;} _myTag>ol>li.'+AutoClassMaped.picshow+'{padding:5px 5px 5px 20px} _myTag>ol>li.'+AutoClassMaped.picshow+' img{display:block;height:45px;position:relative;left:50%;transform: translateX(-50%);-webkit-transform: translateX(-50%);width:auto !important;} _myTag>ol>li.'+AutoClassMaped.picshow+'>div{padding:0;overflow:hidden;}';
+            /*Html*/
+            if(typeof imgArr =="object" && imgArr.length != txtArr.length){
+                return;
+            };
+            var _h = '',islink;
+            AutoClassMaped.origin = createClass();
+
+            for(var i = 0; i < imgArr.length; i++ ){
+                islink = imgArr[i].link ? imgArr[i].link : '';
+                if(!imgArr[i].type){
+                    if(i==0){
+                        islink = imgArr[i].link ? imgArr[i].link : '';
+                        _h += '<li class="'+AutoClassMaped.BannerLiFirst+'" '+ AutoClassMaped.origin +'="' + islink + '"><a href="javascript:;" class="'+AutoClassMaped.SlideClose+'"></a><div><img src=" '+ imgArr[i].src + '"/><h3>' + txtArr[i] + '</h3><span>' + btnname + '</span></div></li>';
+                    }else{
+                        _h += '<li '+ AutoClassMaped.origin +'="' + islink + '"><a href="javascript:;" class="'+AutoClassMaped.SlideClose+'"></a><div><img src="' + imgArr[i].src + '" /><h3>' + txtArr[i] + '</h3><span>' + btnname + '</span></div></li>'
+                    };
+                }else{
+                    _h += '<li class="'+AutoClassMaped.picshow+'" '+ AutoClassMaped.origin +'="' + islink + '"><a href="javascript:;" class="'+AutoClassMaped.SlideClose+'"></a><div><img src="' + imgArr[i].src + '"/></div></li>';
+                };
+            };
+            slideTree = '<section class="'+createClass()+'"><ol>' + _h + '</ol><p class="'+AutoClassMaped.prograssBar+'"></p></section>'
+            
+                
+                
+                    var position_flog,urlArr;
+                    if(_isPlatform() == 'ios'){
+                        position_flog = (layerDate.riphoneappcomment2 === '0') ? 'bottom' : 'top';
+                    }else{
+                        position_flog = (layerDate.randroidappcomment2 === '0') ? 'bottom' : 'top';
+                    };
+                    if( position_flog !=='top' ){
+                        /*强制在顶部显示列表*/
+                        urlArr = [
+                            /\/\/m.autohome.com.cn\/news\/\d+/,
+                            /\/\/m.autohome.com.cn\/drive\/\d+/,
+                            /\/\/m.autohome.com.cn\/advice\/\d+/,
+                            /\/\/m.autohome.com.cn\/use\/\d+/,
+                            /\/\/m.autohome.com.cn\/culture\/\d+/,
+                            /\/\/m.autohome.com.cn\/tech\/\d+/,
+                            /\/\/m.autohome.com.cn\/tuning\/\d+/,
+                            /\/\/m.autohome.com.cn\/market\/\d+/,
+                            /\/\/v.m.autohome.com.cn\/v\-\d+/,
+                            /\/\/m.autohome.com.cn\/shuoke\/\d+/,
+                            /\/\/youchuang.m.autohome.com.cn\/info\/\d+/,
+                            /\/\/m.autohome.com.cn\/topic\/\d+/,
+                            /\/\/live.m.autohome.com.cn\/live\/\d+/,
+                            /\/\/car.m.autohome.com.cn\/price\/listnew/
+                        ];
+                        for(var i = 0; i < urlArr.length; i++){
+                            if(!!href.match(urlArr[i])){
+                                position_flog = 'top';
+                                break;
+                            }
+                        };
+                    };
+                    if( position_flog === 'top' ){
+                        styleTxt = styleTxt + '_myTag{position:relative;}';
+                    }else{
+                        styleTxt = styleTxt + '_myTag{position:fixed;background-color:rgba(0,0,0,0.8);} _myTag>ol>li>div h3 {color:#FFF;} _myTag>ol>li>div span{background:#FFF;color:#2873ff;}';
+                    };
+                
+            
+            /*插入广告位var _myWrapper =$('.wrapper');*/
+            var _myWrapper =$('.wrapper');
+            if(_myWrapper.length==0){
+                _myWrapper= $('.wrapper');
+                if(_myWrapper.length==0){
+                    return;
+                };
+            };
+            var $slideBar = insert({
+                l:_myWrapper,
+                e:slideTree,
+                w:'prepend',
+                s:styleTxt
+            });
+            var $aSeat1 = insert({
+                l:_myWrapper,
+                e:"<section class='" + AutoClassMaped.aSeat + "'><ul><li></li></ul></section>",
+                w:'prepend',
+                s:'.'+AutoClassMaped.aSeat+'{height:0;overflow:hidden;font-size:0;}'
+            });
+            var $aSeat2 = insert({
+                l:$slideBar,
+                e:"<section class='" + AutoClassMaped.aSeat + "'><ul><li></li></ul></section>",
+                w:'after',
+                s:'.'+AutoClassMaped.aSeat+'{height:0;overflow:hidden;font-size:0;}'
+            });
+            
+            var slideMove = function(obj){
+                obj.remove();
+            };
+            
+            setTimeout(function(){
+                /*轮播*/
+                if(imgArr.length > 1){
+                    $slideBar.find('ol').myslide({
+                        childTag:'LI',
+                        loop: true,
+                        autoplay: {
+                            play: true,
+                            time: 6000
+                        },
+                        process: {
+                            show: true,
+                            processBox: '.'+AutoClassMaped.prograssBar
+                        },
+                        dur: 500
+                    });
+                    $slideBar.on('touchmove',function(e){
+                        e.preventDefault();
+                    });
+                };
+
+                
+                /*点击下载*/
+                $slideBar.on('click','ol>li',function (e) {
+                    _tj($slideBar,'head',2);
+                    e.stopPropagation();
+                    e.preventDefault();
+                    if($(this).attr(AutoClassMaped.origin)){
+                        window.location.href = $(this).attr(AutoClassMaped.origin);
+                    }else{
+                        _autoOpenRun_();
+                    };
+                });
+                $slideBar.find('.'+AutoClassMaped.SlideClose).on('click',function(e){
+                    $slideBar.remove();
+                    sc(_ckflog[0],_ckflog[1]);
+                    e.stopPropagation();
+                    e.preventDefault();
+                });
+                 /*添加统计代码*/
+                _tj($slideBar,'head',1);
+            },600);
+        })();
+    
+});

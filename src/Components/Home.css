@@ -1,0 +1,11 @@
+#home .carousel {
+    background-color: #e2413e;
+}
+
+#home-reason {
+    padding: 2rem;
+}
+
+#home-reason .row {
+    margin: 1rem 0 1rem 0;
+}
