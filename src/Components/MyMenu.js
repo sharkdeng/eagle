@@ -4,6 +4,7 @@ import "./MyMenu.css"
 import qq from "../../assets/imgs/zx_qq.gif"
 
 import {BrowserRouter, Link, Switch, Route} from "react-router-dom"
+import Main from "./Main"
 import Home from "./Home"
 import Case from "./Case"
 import Pricing from "./Pricing"
@@ -46,7 +47,7 @@ class MyMenu extends Component {
 
                 </Navbar>
                     <Switch>
-                        <Route exact path="/"> <Home /> </Route>
+                        <Route exact path="/"> <Main /> </Route>
                         <Route path="/case">  <Case />  </Route>
                         <Route path="/pricing"> <Pricing />  </Route>
                         <Route path="/about"> <About />  </Route>
