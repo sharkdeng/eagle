@@ -5,8 +5,8 @@ import {Card} from "react-bootstrap"
 class HomeCard1 extends Component {
     render() {
         return (
-            <Card style={{ width: '18rem' }}>
-                <Card.Img variant="top" src={this.props.imgClass} />
+            <Card>
+                <Card.Img variant="top" src={this.props.imgSrc} />
                 <Card.Body className="text-center">
                     <Card.Title>{this.props.title}</Card.Title>
                     <Card.Text>

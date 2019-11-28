@@ -31,16 +31,16 @@ class MyMenu extends Component {
                     <Navbar.Brand href="/">TuteHub</Navbar.Brand>
                     <Nav>
                         <Nav.Item>
-                            <Link to="/case">Case</Link>
+                            <Link to="/case">学生成功案例</Link>
                         </Nav.Item>
                         <Nav.Item>
-                            <Link to="/pricing">Pricing</Link>
+                            <Link to="/pricing">课程</Link>
                         </Nav.Item>
                         <Nav.Item>
-                            <Link to="/about">About</Link>
+                            <Link to="/about">关于我们</Link>
                         </Nav.Item>
                         <Nav.Item>
-                            <Link to="/contact">Contact</Link>
+                            <Link to="/contact">联系我们</Link>
                         </Nav.Item>
                     </Nav>
 
@@ -48,7 +48,7 @@ class MyMenu extends Component {
                     <Switch>
                         <Route exact path="/"> <Home /> </Route>
                         <Route path="/case">  <Case />  </Route>
-                        <Route path="/pricing"> <About />  </Route>
+                        <Route path="/pricing"> <Pricing />  </Route>
                         <Route path="/about"> <About />  </Route>
                         <Route path="/contact">  <Contact />  </Route>
                     </Switch>     

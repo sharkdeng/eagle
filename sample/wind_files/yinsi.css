@@ -1,0 +1,62 @@
+.rule-info {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.3);
+  display: none; }
+  .rule-info.show {
+    display: block; }
+  .rule-info .rule-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 600px;
+    height: 640px;
+    background: #ffffff;
+    border-radius: 4px;
+    margin-top: -320px;
+    margin-left: -300px; }
+    .rule-info .rule-content .rule-title {
+      width: 100%;
+      margin: 0;
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 18px;
+      border-bottom: 1px solid #f6f6f6;
+      position: relative; }
+      .rule-info .rule-content .rule-title img {
+        width: 28px;
+        height: 28px;
+        display: block;
+        position: absolute;
+        top: 50%;
+        right: 20px;
+        margin-top: -14px;
+        cursor: pointer; }
+    .rule-info .rule-content .rule-content-detail, .rule-info .rule-content .privacy-policy-content-detail {
+      width: 100%;
+      height: 530px;
+      overflow: auto;
+      margin-top: 10px;
+      padding: 0 30px;
+      box-sizing: border-box;
+      overflow-y: auto; }
+      .rule-info .rule-content .rule-content-detail p, .rule-info .rule-content .rule-content-detail h3, .rule-info .rule-content .privacy-policy-content-detail p, .rule-info .rule-content .privacy-policy-content-detail h3 {
+        position: relative;
+        padding-left: 40px;
+        font-size: 16px;
+        line-height: 28px;
+        margin-bottom: 10px; }
+        .rule-info .rule-content .rule-content-detail p > span, .rule-info .rule-content .rule-content-detail h3 > span, .rule-info .rule-content .privacy-policy-content-detail p > span, .rule-info .rule-content .privacy-policy-content-detail h3 > span {
+          position: absolute;
+          left: 0; }
+      .rule-info .rule-content .rule-content-detail h3, .rule-info .rule-content .privacy-policy-content-detail h3 {
+        font-weight: 700; }
+    .rule-info .rule-content .privacy-policy-content-detail p, .rule-info .rule-content .privacy-policy-content-detail h3 {
+      text-indent: 2em;
+      padding: 0; }

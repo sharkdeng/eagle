@@ -1,0 +1,48 @@
+#home-choose {
+    padding: 2rem 0 2rem 0;
+}
+
+#home-choose hr {
+    border: 0.1rem solid orange;
+    width: 10%;
+}
+
+#home-choose button {
+    margin: 0 auto;
+}
+
+#home-choose .row {
+    margin-bottom: 2rem;
+}
+
+#home-choose .card{
+    height: 100%;
+    margin: 0 auto;
+    width: 95% !important;
+    cursor: pointer;
+}
+
+#home-choose .front {
+    border: 0;
+    transform: scaleX(1);
+    transition: 0.3s;
+}
+
+#home-choose .card:hover.front {
+    transform: scaleX(0.1);
+}
+
+#home-choose .overlay {
+    color: red;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+    transform: scaleX(0.5);
+    transition: 0.3s;
+}
+
+#home-choose .col {
+    background:blue;
+}
+
+#home-choose .col:hover .overlay {
+    transform: scaleX(1);
+}
